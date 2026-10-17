@@ -120,17 +120,18 @@ namespace QingyiJianxian.Common
 			{
 				Vector2 at = topLeft + new Vector2(BladeX, MathHelper.Lerp(0f, 300f, sweep)) * scale;
 				float s = MathF.Sin(MathF.PI * sweep);
-				ScreenCircle(sb, Fx.SoftGlow.Value, at, 40f * scale, Color.White * 0.55f * s * fade);
+				ScreenCircle(sb, Fx.SoftGlowLarge.Value, at, 40f * scale, Color.White * 0.55f * s * fade);
 				ScreenLine(sb, at - new Vector2(0f, 26f * scale), at + new Vector2(0f, 26f * scale), Color.White * 0.8f * s * fade, 2.5f * scale);
 			}
 
-			// 眼光：领域里一直有淡淡的青光在呼吸；最后一剑时大亮。闭眼那几帧不亮
-			float eye = MathHelper.Clamp(0.25f + 0.15f * MathF.Sin(t * 2f) + eyeFinal, 0f, 1.2f) * fade;
+			// 眼光：只在虹膜上泛一层淡青，加一颗针尖大的高光——像眼里有光，不是贴一块圆片。
+			// 领域里一直淡淡地呼吸；最后一剑时亮起来。闭眼那几帧不亮
+			float eye = MathHelper.Clamp(0.3f + 0.2f * MathF.Sin(t * 2f) + eyeFinal, 0f, 1.3f) * fade;
 			if (!blinking && eye > 0.01f)
 			{
 				Vector2 at = topLeft + ColossusEye * scale;
-				ScreenCircle(sb, Fx.SoftGlow.Value, at, (40f + 50f * eyeFinal) * scale, new Color(120, 230, 220) * 0.55f * eye);
-				ScreenCircle(sb, Fx.SoftGlow.Value, at, (8f + 12f * eyeFinal) * scale, Color.White * 0.9f * eye);
+				ScreenCircle(sb, Fx.SoftGlowLarge.Value, at, (14f + 30f * eyeFinal) * scale, new Color(110, 225, 215) * 0.45f * eye);
+				ScreenCircle(sb, Fx.SoftGlowLarge.Value, at + new Vector2(1.5f, -1f) * scale, (2.5f + 2f * eyeFinal) * scale, Color.White * eye);
 			}
 
 			DrawMist(sb, topLeft, flow, scale, fade, t, behind: false);
@@ -139,7 +140,7 @@ namespace QingyiJianxian.Common
 		/// <summary>几缕流云：拉长的柔光，缓缓横飘、循环。身后一层淡、身前一层更淡。</summary>
 		private static void DrawMist(SpriteBatch sb, Vector2 topLeft, Texture2D flow, float scale, float fade, float t, bool behind)
 		{
-			Texture2D glow = Fx.SoftGlow.Value;
+			Texture2D glow = Fx.SoftGlowLarge.Value;
 			float w = flow.Width * scale, h = flow.Height * scale;
 			int count = behind ? 4 : 3;
 			for (int i = 0; i < count; i++)
@@ -159,7 +160,7 @@ namespace QingyiJianxian.Common
 			// 一轮淡淡的日/月，不抢戏：白天暖白，夜里冷白，领域里是淡青的；外圈一层晕
 			Vector2 pos = new(Main.screenWidth * 0.78f, Main.screenHeight * 0.18f);
 			Color disc = Color.Lerp(Color.Lerp(new Color(250, 236, 214), new Color(232, 240, 250), night), new Color(178, 228, 222), domain);
-			ScreenCircle(sb, Fx.SoftGlow.Value, pos, 260f, disc * 0.35f * intensity);
+			ScreenCircle(sb, Fx.SoftGlowLarge.Value, pos, 260f, disc * 0.35f * intensity);
 			ScreenCircle(sb, Fx.Disc.Value, pos, 76f, disc * 0.85f * intensity);
 		}
 

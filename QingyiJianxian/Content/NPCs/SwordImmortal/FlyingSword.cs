@@ -17,7 +17,17 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 	public class FlyingSword : ModProjectile
 	{
 		public const int Count = 7;
-		private const float LaunchSpeed = 30f;
+		private const float BaseLaunchSpeed = 30f;   // 一阶段；之后每阶段 +10%（30 / 33 / 36）
+
+		private float LaunchSpeed
+		{
+			get
+			{
+				NPC boss = Main.npc[(int)Projectile.ai[0]];
+				int phase = boss.active && boss.ModNPC is SwordImmortal immortal ? immortal.Phase : 1;
+				return BaseLaunchSpeed * (1f + 0.1f * (phase - 1));
+			}
+		}
 		private const int AimFreeze = 12;   // 发射前这么多帧锁定方向
 		private const int WarnTime = 36;
 

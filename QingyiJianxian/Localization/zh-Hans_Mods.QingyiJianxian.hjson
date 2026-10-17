@@ -6,7 +6,7 @@ NPCs: {
 		PhaseTwo: 且看我剑意。
 		PhaseThree: 此间天地，唯剑而已。
 		FinalStroke: 最后一剑。
-		Eternity: 永字八法。
+		Unbound: 剑气，纵横。
 		Drink: 且饮一杯。
 		Reclaim: 拿我的剑来问我？
 		ReturnBlade: 剑还你。好生用。
@@ -116,7 +116,7 @@ Projectiles: {
 	BrushSweep.DisplayName: 一笔画地
 	DismissQi.DisplayName: 拂袖剑气
 	WineBlade.DisplayName: 醉剑
-	CalligraphyStroke.DisplayName: 永字八法
+	CrossCut.DisplayName: 剑气纵横
 	ClearmoonSwing.DisplayName: 清月剑
 	ClearmoonQi.DisplayName: 清月剑气
 	GuardSword.DisplayName: 罡气护体

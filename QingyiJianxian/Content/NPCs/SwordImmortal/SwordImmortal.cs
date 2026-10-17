@@ -36,7 +36,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			Ring,        // 剑阵 / The Bladeward Ring（二阶段）
 			Hang,        // 万剑悬空 / Ten Thousand Swords Hang in Heaven（三阶段）
 			Brush,       // 一笔画地 / One Brushstroke Bounds the Earth（三阶段）
-			Eight,       // 永字八法 / The Eight Strokes of Eternity（三阶段）
+			Unbound,     // 剑气纵横 / Sword-Will Unbound（三阶段）
 			Drunk,       // 醉剑 / Drunken Blades（三阶段）
 			Final,       // 最后一剑 / The Final Stroke
 			Ending,      // 赠剑离去 / A Parting Gift
@@ -64,7 +64,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 		private static readonly (State State, int Strokes)[] Script3 =
 		{
 			(State.Hang, 0), (State.Brush, 0), (State.Flurry, 3), (State.Hover, 0),
-			(State.Eight, 0), (State.Drunk, 0), (State.Flurry, 3), (State.Hover, 0),
+			(State.Unbound, 0), (State.Drunk, 0), (State.Flurry, 3), (State.Hover, 0),
 			(State.Hang, 0), (State.Stroke, 2), (State.Hover, 0),
 			(State.Brush, 0), (State.Drunk, 0), (State.Flurry, 4), (State.Hover, 0),
 		};
@@ -156,7 +156,25 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 		private int idleCounter;
 
 		private bool Striking => CurrentState == State.Stroke || CurrentState == State.Flurry;
-		private StrikeTiming T => CurrentState == State.Flurry ? FlurryT : StrokeT;
+		private StrikeTiming T => CurrentState == State.Flurry ? ForPhase(FlurryT, FlurrySpeed, FlurryReaction) : ForPhase(StrokeT, StrokeSpeed, StrokeReaction);
+
+		// 冲刺随阶段递增：越往后越快，锁定后的反应时间略缩短（下标 = 阶段 - 1）
+		private static readonly float[] StrokeSpeed = { 64f, 72f, 80f };
+		private static readonly int[] StrokeReaction = { 14, 14, 12 };
+		private static readonly float[] FlurrySpeed = { 60f, 60f, 68f };
+		private static readonly int[] FlurryReaction = { 12, 12, 11 };
+
+		/// <summary>按当前阶段调整冲刺速度和锁定后的反应时间，冲刺时长与收势不变。</summary>
+		private StrikeTiming ForPhase(StrikeTiming t, float[] speeds, int[] reactions)
+		{
+			int i = Math.Clamp(phase - 1, 0, 2);
+			int dashStart = t.AimEnd + reactions[i];
+			int shift = dashStart - t.DashStart;
+			return t with { DashStart = dashStart, DashEnd = t.DashEnd + shift, End = t.End + shift, Speed = speeds[i] };
+		}
+
+		/// <summary>当前阶段（1-3），给飞剑等弹幕按阶段调速用。</summary>
+		public int Phase => phase;
 		private bool Dashing => Striking && blinkTimer == 0 && Timer >= T.DashStart && Timer < T.DashEnd;
 		private (State State, int Strokes)[] Script => phase switch { 1 => Script1, 2 => Script2, _ => Script3 };
 
@@ -397,7 +415,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 				case State.Ring: Ring(player); break;
 				case State.Hang: Hang(player); break;
 				case State.Brush: Brush(player); break;
-				case State.Eight: Eight(player); break;
+				case State.Unbound: Unbound(player); break;
 				case State.Drunk: Drunk(player); break;
 				case State.Final: Final(player); break;
 				case State.Ending: Ending(player); break;
@@ -873,29 +891,36 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 				NextInScript();
 		}
 
-		// 永字八法：在玩家所在处写一个巨大的"永"字，八笔按笔顺落下
-		private void Eight(Player player)
+		// 剑气纵横：原地挥剑，八道贯穿领域的剑气交错斩下，瞄的是玩家的预判位置
+		private const int UnboundCuts = 8;
+		private const int UnboundFirst = 14;
+		private const int UnboundGap = 14;
+
+		private void Unbound(Player player)
 		{
 			if (Timer == 0)
 			{
 				Timer = 1;
-				BlinkTo(player.Center + new Vector2(side * 200f, -560f));
+				BlinkTo(player.Center + new Vector2(side * 420f, -300f));
 				return;
 			}
 			NPC.velocity *= 0.9f;
-			if (Timer == 6)
-				Say("Eternity");
-			if (Timer == 10 && Main.netMode != NetmodeID.MultiplayerClient)
+			if (Timer == 8)
+				Say("Unbound");
+			int i = ((int)Timer - UnboundFirst) / UnboundGap;
+			if (Timer >= UnboundFirst && (Timer - UnboundFirst) % UnboundGap == 0 && i < UnboundCuts)
 			{
-				for (int i = 0; i < CalligraphyStroke.StrokeCount; i++)
-					Projectile.NewProjectile(NPC.GetSource_FromAI(), player.Center, Vector2.Zero,
-						ModContent.ProjectileType<CalligraphyStroke>(), ProjDamage(75, 55), 0f, Main.myPlayer, i, i * CalligraphyStroke.StrokeGap);
+				SoundEngine.PlaySound(SoundID.Item1 with { Pitch = 0.4f }, NPC.Center);
+				if (Main.netMode != NetmodeID.MultiplayerClient)
+				{
+					// 每一刀转过约 67.5° 再加一点随机，刀刀交错；瞄的是寒光闪完时玩家会到的地方
+					float angle = i * MathHelper.Pi * 0.375f + Main.rand.NextFloat(-0.25f, 0.25f) + NPC.ai[3] * 0.7f;
+					Vector2 at = player.Center + player.velocity * CrossCut.WarnTime;
+					Projectile.NewProjectile(NPC.GetSource_FromAI(), at, Vector2.Zero, ModContent.ProjectileType<CrossCut>(),
+						ProjDamage(80, 60), 0f, Main.myPlayer, angle);
+				}
 			}
-			// 写字时也不闲着：每隔一会儿掷一把飞剑追人（三阶段不画红线，只有寒光）
-			if (Timer > 30 && (int)Timer % 40 == 0 && Timer < 10 + CalligraphyStroke.EndAt && Main.netMode != NetmodeID.MultiplayerClient)
-				Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.Zero, ModContent.ProjectileType<FlyingSword>(),
-					ProjDamage(70, 52), 0f, Main.myPlayer, NPC.whoAmI, FlyingSword.Count / 2, 24);
-			if (++Timer >= 10 + CalligraphyStroke.EndAt + 20)
+			if (++Timer >= UnboundFirst + (UnboundCuts - 1) * UnboundGap + CrossCut.WarnTime + 30)
 				NextInScript();
 		}
 
@@ -1369,7 +1394,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 
 			// 姿势：御剑、落叶时捏剑指施法；一剑横江锁定方向后前倾，冲完再缓缓收势
 			bool casting = (CurrentState == State.Swordflight && Timer < 150) || (CurrentState == State.Leaves && Timer < 140)
-				|| CurrentState is State.River or State.Ring or State.Hang or State.Brush or State.Eight
+				|| CurrentState is State.River or State.Ring or State.Hang or State.Brush or State.Unbound
 				|| (CurrentState == State.Drunk && Timer < DrunkSprayAt)
 				|| (CurrentState == State.Transition && Timer > 10) || (CurrentState == State.Final && Timer > 10);
 			bool lunging = (Striking && !Blinking && Timer >= T.AimEnd && Timer < T.DashEnd + 10)

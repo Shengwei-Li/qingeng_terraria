@@ -6,7 +6,7 @@ NPCs: {
 		PhaseTwo: Behold, then, the will of my sword.
 		PhaseThree: Within this heaven and earth, naught remaineth but the sword.
 		FinalStroke: The final stroke.
-		Eternity: The eight strokes of Eternity.
+		Unbound: Sword-will, unbound.
 		Drink: One cup, then.
 		Reclaim: Thou wouldst question me with mine own blade?
 		ReturnBlade: Thy blade, returned. Wield it well.
@@ -116,7 +116,7 @@ Projectiles: {
 	BrushSweep.DisplayName: One Brushstroke
 	DismissQi.DisplayName: A Flick of the Sleeve
 	WineBlade.DisplayName: Drunken Blades
-	CalligraphyStroke.DisplayName: The Eight Strokes of Eternity
+	CrossCut.DisplayName: Sword-Will Unbound
 	ClearmoonSwing.DisplayName: Clearmoon
 	ClearmoonQi.DisplayName: Crescent of Clearmoon
 	GuardSword.DisplayName: Guarding Qi

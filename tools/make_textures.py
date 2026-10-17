@@ -6,6 +6,7 @@ usage: python make_textures.py
 import math
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -111,6 +112,19 @@ for y in range(N):
         glow.putpixel((x, y), (255, 255, 255, int(a * 255)))
 glow.save(FX / "SoftGlow.png")
 
+# 大尺寸平滑光晕：给需要放得很大的光（天幕上的眼光、日月、流云）用，避免小贴图放大后断成一圈圈的环。
+# 高斯衰减，再加一点点抖动打散 8 位色深的台阶
+rng_g = np.random.default_rng(3)
+G = 256
+yy, xx = np.mgrid[0:G, 0:G]
+d = np.hypot(xx + 0.5 - G / 2, yy + 0.5 - G / 2) / (G / 2)
+ga = np.exp(-(d / 0.45) ** 2) * np.clip(1 - d, 0, 1) ** 0.5
+ga = np.clip(ga * 255 + rng_g.uniform(-0.5, 0.5, ga.shape), 0, 255)
+big = np.zeros((G, G, 4), np.uint8)
+big[..., :3] = 255
+big[..., 3] = ga.astype(np.uint8)
+Image.fromarray(big, "RGBA").save(FX / "SoftGlowLarge.png")
+
 # Hard-edged disc (pixel-art friendly), used for ink bursts and warning circles.
 N = 32
 disc = Image.new("RGBA", (N, N))
@@ -130,7 +144,6 @@ for y in range(N):
 ring.save(FX / "Ring.png")
 # Brush stroke for trails (笔触，带飞白). x: 0 = tail, 1 = head; y: across the stroke.
 # White with alpha; the trail renderer tints it.
-import numpy as np  # noqa: E402
 
 rng = np.random.default_rng(7)
 BW, BH = 256, 48

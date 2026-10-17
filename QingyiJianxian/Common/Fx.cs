@@ -17,6 +17,7 @@ namespace QingyiJianxian.Common
 		public static readonly Color PaleTeal = new(170, 236, 228);
 
 		public static Asset<Texture2D> SoftGlow => ModContent.Request<Texture2D>("QingyiJianxian/Assets/Effects/SoftGlow");
+		public static Asset<Texture2D> SoftGlowLarge => ModContent.Request<Texture2D>("QingyiJianxian/Assets/Effects/SoftGlowLarge");
 		public static Asset<Texture2D> Disc => ModContent.Request<Texture2D>("QingyiJianxian/Assets/Effects/Disc");
 		public static Asset<Texture2D> Ring => ModContent.Request<Texture2D>("QingyiJianxian/Assets/Effects/Ring");
 
