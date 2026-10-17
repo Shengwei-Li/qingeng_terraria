@@ -36,9 +36,13 @@ for i, f in enumerate(frames):
 sheet.resize((sheet.width * 2, sheet.height * 2), Image.Resampling.NEAREST).save(BOSS / "SwordImmortal.png")
 print("boss frames", len(frames))
 
-# 初遇：倚云饮酒。0-7 饮酒循环，8-15 懒懒挥手。WanderingImmortal.cs 依赖这个顺序
+# Boss 头像（小地图、血条）：从待机首帧裁出头部，2 倍
+head = Image.open(frames[0]).convert("RGBA").crop((30, 0, 48, 18))
+head.resize((head.width * 2, head.height * 2), Image.Resampling.NEAREST).save(BOSS / "SwordImmortal_Head_Boss.png")
+
+# 初遇：倚云饮酒。0-7 饮酒循环，8-15 懒懒挥手，16-23 起身（肉后开战）。WanderingImmortal.cs 依赖这个顺序
 lounge = []
-for folder in ("剑仙_饮酒循环", "剑仙_挥手"):
+for folder in ("剑仙_饮酒循环", "剑仙_挥手", "剑仙_起身"):
     lounge += sorted((ART / folder).glob("*.png"), key=lambda p: int(p.stem))
 LW, LH = Image.open(lounge[0]).size  # 倚云图是 72×72，比站姿大
 lsheet = Image.new("RGBA", (LW, LH * len(lounge)))

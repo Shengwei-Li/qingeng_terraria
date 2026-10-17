@@ -39,6 +39,9 @@ namespace QingyiJianxian.Content.Items
 			Item.value = Item.sellPrice(gold: 6);
 		}
 
+		// 剑被夺：这一战用不了
+		public override bool CanUseItem(Player player) => !player.HasBuff<Buffs.Disarmed>();
+
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
 		{
 			var sp = player.GetModPlayer<SwordPlayer>();

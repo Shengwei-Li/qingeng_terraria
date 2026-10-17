@@ -8,6 +8,10 @@ NPCs: {
 		FinalStroke: The final stroke.
 		Eternity: The eight strokes of Eternity.
 		Drink: One cup, then.
+		Reclaim: Thou wouldst question me with mine own blade?
+		ReturnBlade: Thy blade, returned. Wield it well.
+		BladeAnswers: Blade answered with blade. 'Tis well.
+		Again: Thou, again.
 		Received: This stroke — thou hast received it.
 		Farewell: The green hills change not. We shall meet again.
 	}
@@ -122,6 +126,11 @@ Buffs: {
 	Tipsy: {
 		DisplayName: A Pleasant Tipple
 		Description: Damage, defense, life regeneration and speed are increased
+	}
+
+	Disarmed: {
+		DisplayName: Disarmed
+		Description: Clearmoon resteth in the Immortal's hand; thou canst not wield it this fight
 	}
 
 	SwordWill: {

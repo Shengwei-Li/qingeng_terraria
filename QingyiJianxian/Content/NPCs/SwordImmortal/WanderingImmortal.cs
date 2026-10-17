@@ -27,6 +27,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 	public class WanderingImmortal : ModNPC
 	{
 		private const int DrinkFrames = 8, WaveFirst = 8, WaveFrames = 8;
+		private const int RiseFirst = 16, RiseFrames = 8, RiseFrameTicks = 6; // 起身：云散人立
 		private const int WaveFrameTicks = 4;
 		private const int QiFrame = 4;           // 挥到第几帧时放出剑气
 		private const float HoverHeight = 320f;  // 离地约 20 格：抬头就看得见，又不至于飘出屏幕
@@ -36,7 +37,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 		private const int LeaveDelay = 60 * 30;    // ……持续半分钟，他就走（跑开拿个东西回来，人还在）
 		private const float FaceDeadzone = 48f;    // 玩家要偏出这么远他才转身，免得在正下方来回抽搐
 
-		private enum Mode { Lounging, Waving, Leaving }
+		private enum Mode { Lounging, Waving, Leaving, Rising }
 
 		private Mode CurrentMode
 		{
@@ -54,7 +55,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 
 		public override void SetStaticDefaults()
 		{
-			Main.npcFrameCount[Type] = DrinkFrames + WaveFrames;
+			Main.npcFrameCount[Type] = DrinkFrames + WaveFrames + RiseFrames;
 			NPCID.Sets.MPAllowedEnemies[Type] = true;
 			NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, new NPCID.Sets.NPCBestiaryDrawModifiers { Hide = true });
 		}
@@ -127,7 +128,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			if (talkCooldown > 0)
 				talkCooldown--;
 
-			if (CurrentMode != Mode.Leaving && Main.netMode != NetmodeID.MultiplayerClient)
+			if (CurrentMode is Mode.Lounging or Mode.Waving && Main.netMode != NetmodeID.MultiplayerClient)
 			{
 				// 天黑了就走，说一句；附近没人了也走，悄悄的
 				bool anyoneNear = false;
@@ -173,6 +174,26 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 					{
 						CurrentMode = Mode.Lounging;
 						ModeTimer = 0;
+					}
+					break;
+
+				case Mode.Rising:
+					// 起身：动画放完，站定的那一刻原地换成剑仙本体开打
+					NPC.velocity *= 0.85f;
+					if (++ModeTimer >= RiseFrames * RiseFrameTicks && Main.netMode != NetmodeID.MultiplayerClient)
+					{
+						// 末帧里站立的人物比画面中心偏右下一点（见 tools/make_textures.py 的拼接方式）
+						Vector2 at = NPC.Center + new Vector2(6f * NPC.spriteDirection, 3f);
+						int boss = NPC.NewNPC(NPC.GetSource_FromAI(), (int)at.X, (int)at.Y + 55, ModContent.NPCType<SwordImmortal>(), 0, 0, 0, 0, 0, NPC.target);
+						if (boss < Main.maxNPCs)
+						{
+							Main.npc[boss].direction = Main.npc[boss].spriteDirection = NPC.spriteDirection;
+							if (Main.netMode == NetmodeID.Server)
+								NetMessage.SendData(MessageID.SyncNPC, number: boss);
+						}
+						NPC.active = false;
+						if (Main.netMode == NetmodeID.Server)
+							NetMessage.SendData(MessageID.SyncNPC, number: NPC.whoAmI);
 					}
 					break;
 
@@ -244,7 +265,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 
 		public override void HitEffect(NPC.HitInfo hit)
 		{
-			if (CurrentMode == Mode.Leaving)
+			if (CurrentMode is Mode.Leaving or Mode.Rising)
 				return;
 			Provocations++;
 
@@ -266,16 +287,14 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 
 			if (Main.hardMode)
 			{
-				// 肉后：好，陪你走几招
-				Say("Accept");
-				if (Main.netMode != NetmodeID.MultiplayerClient)
+				// 肉后：好，陪你走几招——起身，云散，站定拔剑
+				if (CurrentMode != Mode.Rising)
 				{
-					int boss = NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.Center.X, (int)NPC.Bottom.Y, ModContent.NPCType<SwordImmortal>(), 0, 0, 0, 0, 0, NPC.target);
-					if (Main.netMode == NetmodeID.Server && boss < Main.maxNPCs)
-						NetMessage.SendData(MessageID.SyncNPC, number: boss);
-					NPC.active = false;
-					if (Main.netMode == NetmodeID.Server)
-						NetMessage.SendData(MessageID.SyncNPC, number: NPC.whoAmI);
+					Say("Accept");
+					CurrentMode = Mode.Rising;
+					ModeTimer = 0;
+					NPC.netUpdate = true;
+					SoundEngine.PlaySound(SoundID.Item24 with { Pitch = -0.2f }, NPC.Center);
 				}
 				return;
 			}
@@ -316,6 +335,8 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			int frame;
 			if (CurrentMode == Mode.Waving)
 				frame = WaveFirst + Math.Min((int)ModeTimer / WaveFrameTicks, WaveFrames - 1);
+			else if (CurrentMode == Mode.Rising)
+				frame = RiseFirst + Math.Min((int)ModeTimer / RiseFrameTicks, RiseFrames - 1);
 			else
 			{
 				if (++drinkCounter >= 9)

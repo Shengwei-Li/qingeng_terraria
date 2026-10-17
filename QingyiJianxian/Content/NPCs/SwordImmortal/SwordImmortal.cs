@@ -20,6 +20,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 	/// repositions by dissolving into mist (blink) instead of flying across the screen,
 	/// never enters solid tiles, and only the strike itself is fast.
 	/// </summary>
+	[AutoloadBossHead]
 	public class SwordImmortal : ModNPC
 	{
 		private enum State
@@ -130,10 +131,18 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 		private float riverStartX;
 		private Vector2 domainCenter;
 
+		// 以剑问剑：本机玩家对他造成的伤害里，剑类占多少。只在本机记，认可之礼也在本机给
+		private const float BladeAnswersShare = 0.6f;
+		private long localDamage, localSwordDamage;
+		// 夺剑：有人用清月剑打他，他夺剑在手，双剑形态（联机同步）
+		private bool twin;
+		private bool twinAnnounced;
+		private bool reclaimedFromMe;   // 被夺的是本机玩家的剑
+
 		// 以下只用于表现，不需要同步
 		private int hitstop;             // 剑命中玩家时顿帧
 		private int hitFlash;
-		private float cloudAlpha = 1f;
+		private float cloudAlpha = 0f;   // 开场从无到有聚起来
 		private readonly Vector2[] trail = new Vector2[8];
 		private readonly Vector2[] inkStroke = new Vector2[16]; // 冲刺画下的一笔墨，停下后留在原地慢慢淡去
 		private float inkFade;
@@ -228,6 +237,49 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			Shake(dashDir, 7f, 14);
 		}
 
+		public override void OnHitByItem(Player player, Item item, NPC.HitInfo hit, int damageDone)
+			=> RecordHit(player, damageDone, Swords.IsSword(item), item.type == ModContent.ItemType<Items.Clearmoon>());
+
+		public override void OnHitByProjectile(Projectile projectile, NPC.HitInfo hit, int damageDone)
+		{
+			if (projectile.owner < 0 || projectile.owner >= Main.maxPlayers)
+				return;
+			bool clearmoon = projectile.type == ModContent.ProjectileType<Projectiles.ClearmoonSwing>()
+				|| projectile.type == ModContent.ProjectileType<Projectiles.ClearmoonQi>();
+			RecordHit(Main.player[projectile.owner], damageDone, Swords.IsSwordProjectile(projectile), clearmoon);
+		}
+
+		private void RecordHit(Player player, int damage, bool sword, bool clearmoon)
+		{
+			if (player.whoAmI != Main.myPlayer)
+				return;
+			localDamage += damage;
+			if (sword)
+				localSwordDamage += damage;
+			// 拿我的剑来问我？——夺剑
+			if (clearmoon && !twin && CurrentState is not (State.Final or State.Ending))
+			{
+				reclaimedFromMe = true;
+				player.AddBuff(ModContent.BuffType<Buffs.Disarmed>(), 60 * 60 * 30);
+				if (Main.netMode == NetmodeID.MultiplayerClient)
+				{
+					ModPacket packet = Mod.GetPacket();
+					packet.Write((byte)QingyiJianxian.Message.Reclaim);
+					packet.Write((byte)NPC.whoAmI);
+					packet.Send();
+				}
+				else
+					BecomeTwin();
+			}
+		}
+
+		/// <summary>夺剑在手：之后每一剑冲刺收势时，都用清月剑甩出一道月牙追斩。</summary>
+		public void BecomeTwin()
+		{
+			twin = true;
+			NPC.netUpdate = true;
+		}
+
 		public override void HitEffect(NPC.HitInfo hit)
 		{
 			hitFlash = 6;
@@ -247,6 +299,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			writer.Write((sbyte)riverSide);
 			writer.Write(riverStartX);
 			writer.WriteVector2(domainCenter);
+			writer.Write(twin);
 		}
 
 		public override void ReceiveExtraAI(BinaryReader reader)
@@ -263,6 +316,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			riverSide = reader.ReadSByte();
 			riverStartX = reader.ReadSingle();
 			domainCenter = reader.ReadVector2();
+			twin = reader.ReadBoolean();
 		}
 
 		public override void AI()
@@ -274,6 +328,16 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			UpdateVisuals(player);
 			Lighting.AddLight(NPC.Center, 0.35f, 0.6f, 0.6f);
 			UpdateDomain();
+
+			if (twin && !twinAnnounced)
+			{
+				// 伸手夹住剑锋：画面一顿
+				twinAnnounced = true;
+				Say("Reclaim");
+				hitstop = 10;
+				Shake(Vector2.UnitX, 6f, 16);
+				SoundEngine.PlaySound(SoundID.Item37 with { Pitch = 0.3f }, NPC.Center);
+			}
 
 			if (hitstop > 0)
 			{
@@ -384,11 +448,22 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 		private void Intro(Player player)
 		{
 			if (Timer == 0)
-				BlinkTo(player.Center + new Vector2(side * 360f, -160f));
-			else if (++Timer >= 50)
-				NextInScript();
-			if (Timer == 0)
+			{
+				// 从云上起身的就在原地开打；乘云远道而来（一壶酒请来的）才瞬身到跟前
+				if (NPC.Distance(player.Center) > 900f)
+					BlinkTo(player.Center + new Vector2(side * 360f, -160f));
 				Timer = 1;
+				return;
+			}
+			if (Timer == 10)
+			{
+				SoundEngine.PlaySound(SoundID.Item71 with { Pitch = 0.5f, Volume = 0.6f }, NPC.Center); // 拔剑出鞘
+				AddRipple(Feet);
+				if (WorldFlags.DownedSwordImmortal)
+					Say("Again"); // 又是你。
+			}
+			if (++Timer >= 50)
+				NextInScript();
 		}
 
 		private void Hover(Player player)
@@ -478,7 +553,16 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			{
 				// 收剑即止：急停，脚下荡开涟漪
 				if (Timer == T.DashEnd)
+				{
 					AddRipple(Feet);
+					// 双剑形态：收势时清月剑甩出一道月牙追斩
+					if (twin && Main.netMode != NetmodeID.MultiplayerClient)
+					{
+						Vector2 v = NPC.DirectionTo(player.Center) * 20f;
+						Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, v, ModContent.ProjectileType<DismissQi>(),
+							ProjDamage(65, 50), 6f, Main.myPlayer, NPC.target);
+					}
+				}
 				NPC.velocity *= 0.6f;
 				// 贴地掠过后脚可能陷进地里，慢慢浮起来
 				if (Collision.SolidCollision(NPC.position, NPC.width, NPC.height))
@@ -999,7 +1083,9 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 				Say("Received");
 			if (Timer == EndingGift)
 				GiveGifts(player);
-			if (Timer == EndingGift + 30)
+			if (Timer == EndingGift + 15)
+				LocalRecognition();
+			if (Timer == EndingGift + 45)
 				Say("Farewell");
 
 			if (++Timer >= EndingGone)
@@ -1010,6 +1096,36 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 				NPC.active = false;
 				if (Main.netMode == NetmodeID.Server)
 					NetMessage.SendData(MessageID.SyncNPC, number: NPC.whoAmI);
+			}
+		}
+
+		/// <summary>
+		/// 本机玩家的认可之礼（每位玩家在自己的客户端上判定、自己拿）：
+		///   夺过剑的：剑还你，外加剑穗和几块云纹绡；
+		///   以剑问剑（对他的伤害里剑类占六成以上）：认可一句，没有清月剑的给一把，外加云纹绡和药酒。
+		/// </summary>
+		private void LocalRecognition()
+		{
+			if (Main.dedServ)
+				return;
+			Player me = Main.LocalPlayer;
+			var source = NPC.GetSource_Loot();
+			if (reclaimedFromMe)
+			{
+				Say("ReturnBlade");
+				me.ClearBuff(ModContent.BuffType<Buffs.Disarmed>());
+				me.QuickSpawnItem(source, ModContent.ItemType<Items.InkwakeTassel>());
+				me.QuickSpawnItem(source, ModContent.ItemType<Items.CloudweaveSilk>(), 4);
+				return;
+			}
+			bool fought = localDamage > NPC.lifeMax * 0.05f;
+			if (fought && localSwordDamage >= localDamage * BladeAnswersShare)
+			{
+				Say("BladeAnswers");
+				if (!me.HasItem(ModContent.ItemType<Items.Clearmoon>()))
+					me.QuickSpawnItem(source, ModContent.ItemType<Items.Clearmoon>());
+				me.QuickSpawnItem(source, ModContent.ItemType<Items.CloudweaveSilk>(), 4);
+				me.QuickSpawnItem(source, ModContent.ItemType<Items.AzureCloudDraught>(), 3);
 			}
 		}
 
@@ -1324,6 +1440,14 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			Color lit = NPC.GetAlpha(Color.Lerp(drawColor, Color.White, 0.45f)) * alpha;
 			spriteBatch.Draw(body, pos - screenPos, NPC.frame, lit, 0f, origin, NPC.scale, fx, 0f);
 			DrawSword(spriteBatch, pos + swordHand, lit);
+			if (twin)
+			{
+				// 夺来的清月剑握在另一只手，和青锋错开一个角度
+				Texture2D moon = ModContent.Request<Texture2D>("QingyiJianxian/Content/Items/Clearmoon").Value;
+				var hilt2 = new Vector2(10f, moon.Height - 10f);
+				Vector2 hand2 = pos + new Vector2(14f * dir, 4f);
+				spriteBatch.Draw(moon, hand2 - screenPos, null, lit, swordAngle - 0.8f * dir + MathHelper.PiOver4, hilt2, 0.85f, SpriteEffects.None, 0f);
+			}
 			if (CurrentState == State.Drunk && Timer >= 4 && Timer < DrunkSprayAt)
 			{
 				// 仰头饮酒：葫芦举到嘴边

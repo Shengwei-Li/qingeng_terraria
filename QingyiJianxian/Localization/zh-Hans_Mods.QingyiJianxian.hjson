@@ -8,6 +8,10 @@ NPCs: {
 		FinalStroke: 最后一剑。
 		Eternity: 永字八法。
 		Drink: 且饮一杯。
+		Reclaim: 拿我的剑来问我？
+		ReturnBlade: 剑还你。好生用。
+		BladeAnswers: 以剑问剑，善。
+		Again: 又是你。
 		Received: 这一剑，你接住了。
 		Farewell: 青山不改，后会有期。
 	}
@@ -122,6 +126,11 @@ Buffs: {
 	Tipsy: {
 		DisplayName: 微醺
 		Description: 伤害、防御、生命再生、移速都提升了
+	}
+
+	Disarmed: {
+		DisplayName: 剑被夺
+		Description: 清月剑在剑仙手中，这一战用不了
 	}
 
 	SwordWill: {

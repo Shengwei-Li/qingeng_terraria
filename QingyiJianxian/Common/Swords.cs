@@ -139,6 +139,11 @@ namespace QingyiJianxian.Common
 				}
 			}
 
+			// 剑被夺只在这一战里：剑仙不在了就解除
+			int disarmed = ModContent.BuffType<Content.Buffs.Disarmed>();
+			if (Player.HasBuff(disarmed) && !NPC.AnyNPCs(ModContent.NPCType<Content.NPCs.SwordImmortal.SwordImmortal>()))
+				Player.ClearBuff(disarmed);
+
 			if (willTimer > 0 && --willTimer == 0)
 				WillStacks = 0;
 			if (!WayfarerSet)
