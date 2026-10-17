@@ -1,0 +1,138 @@
+NPCs: {
+	SwordImmortal: {
+		DisplayName: The Azure-Clad Sword Immortal
+		Pursue: Flee if thou wilt; the sword shall follow.
+		Defeat: Thy sword-heart is yet unsettled. Come again another day.
+		PhaseTwo: Behold, then, the will of my sword.
+		PhaseThree: Within this heaven and earth, naught remaineth but the sword.
+		FinalStroke: The final stroke.
+		Eternity: The eight strokes of Eternity.
+		Drink: One cup, then.
+		Received: This stroke — thou hast received it.
+		Farewell: The green hills change not. We shall meet again.
+	}
+
+	FinalSword.DisplayName: The Final Stroke
+
+	WanderingImmortal: {
+		DisplayName: The Azure-Clad Sword Immortal
+		Arrive: A waft of wine drifteth upon the wind...
+		Disturb: Little friend, trouble not my wine.
+		Oh: Oh?
+		Accept: Very well. I shall humor thee a few strokes.
+		Dismiss1: Go thou and train awhile.
+		Dismiss2: Thou knowest not when to yield.
+		Dismiss3: ...
+		Leave: The hour groweth late.
+		Gone: The wine is drunk; the wanderer is gone.
+	}
+}
+
+Items: {
+	CloudweaveSilk: {
+		DisplayName: Cloudweave Silk
+		Tooltip: The immortal air of his sleeves, gathered into a length of gauze
+	}
+
+	AzureWayfarerRobe: {
+		DisplayName: Wayfarer's Robe
+		Tooltip: 8% increased melee damage and critical strike chance
+		SetBonus:
+			'''
+			Cloudstep: double-tap left or right to dash upon a cloud, untouchable for an instant as thou goest
+			Sword-Will: each sword strike gathereth will, up to 5; each granteth 4% sword damage and 3% sword speed, and it fadeth after three idle seconds
+			With the Jade Crown — Guarding Qi: when struck, four small blades circle thee for three seconds, lessening harm by 25% and cutting any foe they touch; twenty seconds to return
+			'''
+	}
+
+	AzureWayfarerCrown: {
+		DisplayName: Wayfarer's Jade Crown
+		Tooltip:
+			'''
+			6% increased melee critical strike chance
+			Worn with the Wayfarer's Robe and Cloudstriders, awakeneth the Guarding Qi
+			'''
+	}
+
+	AzureWayfarerBoots: {
+		DisplayName: Wayfarer's Cloudstriders
+		Tooltip: 10% increased movement speed and melee speed
+	}
+
+	InkwakeTassel: {
+		DisplayName: Inkwake Tassel
+		Tooltip:
+			'''
+			15% increased damage and 10% increased critical strike chance with swords
+			Sword critical strikes leave an ink mark that bursts after a moment for half the blow's damage
+			'''
+	}
+
+	AzureCloudDraught: {
+		DisplayName: Azure Cloud Draught
+		Tooltip:
+			'''
+			The Immortal's healing wine; one swallow and the greater part of thy wounds is gone
+			Leaveth thee pleasantly tipsy for five minutes
+			'''
+	}
+
+	LitanyOfSwordflight: {
+		DisplayName: Litany of Swordflight
+		Tooltip: Speak the words, and a cloud riseth beneath thy feet
+	}
+
+	Clearmoon: {
+		DisplayName: Clearmoon
+		Tooltip:
+			'''
+			A three-stroke chain: a rising cut, a falling cut, and a whirling stroke that casteth a crescent of light
+			A gift of the Immortal. A single line of moonlight; its edge taketh no dust
+			'''
+	}
+
+	CloudbrewGourd: {
+		DisplayName: Cloudbrew Gourd
+		Tooltip:
+			'''
+			Pour a cup unto heaven, and the Immortal cometh upon the clouds
+			(Ere thou hast crossed blades with him, he cometh only to drink)
+			(Dev build: crafted from a single block of dirt)
+			'''
+	}
+}
+
+Projectiles: {
+	FlyingSword.DisplayName: Swordflight
+	InkBurst.DisplayName: Inkwake
+	FallingLeaf.DisplayName: Falling Leaf
+	RingSword.DisplayName: The Bladeward Ring
+	RiverSword.DisplayName: River of Blades
+	InkSword.DisplayName: Ink Blade
+	BrushSweep.DisplayName: One Brushstroke
+	DismissQi.DisplayName: A Flick of the Sleeve
+	WineBlade.DisplayName: Drunken Blades
+	CalligraphyStroke.DisplayName: The Eight Strokes of Eternity
+	ClearmoonSwing.DisplayName: Clearmoon
+	ClearmoonQi.DisplayName: Crescent of Clearmoon
+	GuardSword.DisplayName: Guarding Qi
+}
+
+Buffs: {
+	Tipsy: {
+		DisplayName: A Pleasant Tipple
+		Description: Damage, defense, life regeneration and speed are increased
+	}
+
+	SwordWill: {
+		DisplayName: Sword-Will
+		Description: Sword damage and speed rise with each layer
+	}
+
+	WanderingCloudBuff: {
+		DisplayName: Upon the Cloud
+		Description: Thou walkest upon a cloud
+	}
+}
+
+Mounts.WanderingCloud.MountName: Wandering Cloud

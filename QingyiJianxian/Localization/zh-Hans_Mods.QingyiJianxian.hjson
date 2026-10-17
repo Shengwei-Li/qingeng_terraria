@@ -1,0 +1,138 @@
+NPCs: {
+	SwordImmortal: {
+		DisplayName: 青衣剑仙
+		Pursue: 避战者，剑必至。
+		Defeat: 剑心未定，改日再来。
+		PhaseTwo: 且看我剑意。
+		PhaseThree: 此间天地，唯剑而已。
+		FinalStroke: 最后一剑。
+		Eternity: 永字八法。
+		Drink: 且饮一杯。
+		Received: 这一剑，你接住了。
+		Farewell: 青山不改，后会有期。
+	}
+
+	FinalSword.DisplayName: 最后一剑
+
+	WanderingImmortal: {
+		DisplayName: 青衣剑仙
+		Arrive: 一缕酒香随风飘来……
+		Disturb: 小友，莫扰我酒兴。
+		Oh: 哦？
+		Accept: 好，陪你走几招。
+		Dismiss1: 回去再练练。
+		Dismiss2: 不知进退。
+		Dismiss3: ……
+		Leave: 天色晚了。
+		Gone: 酒尽，人去。
+	}
+}
+
+Items: {
+	CloudweaveSilk: {
+		DisplayName: 云纹绡
+		Tooltip: 剑仙衣袂间的仙气，凝成一匹轻绡
+	}
+
+	AzureWayfarerRobe: {
+		DisplayName: 青衫·剑袍
+		Tooltip: 近战伤害 +8%，近战暴击率 +8%
+		SetBonus:
+			'''
+			身法：双击左右方向键，踏云冲刺，起步一瞬无敌
+			剑意：剑类命中叠一层剑意，最多 5 层，每层剑类伤害 +4%、攻速 +3%；三秒不出剑便散
+			再戴上青衫·发冠——罡气护体：受击后四柄小青剑绕身三秒，期间受到伤害 -25%，碰到的敌人会被斩伤；冷却 20 秒
+			'''
+	}
+
+	AzureWayfarerCrown: {
+		DisplayName: 青衫·发冠
+		Tooltip:
+			'''
+			近战暴击率 +6%
+			与青衫剑袍、云履同穿时解锁罡气护体
+			'''
+	}
+
+	AzureWayfarerBoots: {
+		DisplayName: 青衫·云履
+		Tooltip: 移动速度 +10%，近战攻速 +10%
+	}
+
+	InkwakeTassel: {
+		DisplayName: 剑穗
+		Tooltip:
+			'''
+			剑类武器伤害 +15%，暴击率 +10%
+			剑类暴击时留下墨痕，一秒后炸开，追加这一击一半的伤害
+			'''
+	}
+
+	AzureCloudDraught: {
+		DisplayName: 青云药酒
+		Tooltip:
+			'''
+			剑仙的疗伤药酒，一口下去，伤去大半
+			饮后微醺五分钟
+			'''
+	}
+
+	LitanyOfSwordflight: {
+		DisplayName: 御剑诀
+		Tooltip: 念一句口诀，脚下生云
+	}
+
+	Clearmoon: {
+		DisplayName: 清月剑
+		Tooltip:
+			'''
+			三段连斩：上挑、下劈、旋身一斩并甩出月牙剑气
+			剑仙所赠。清辉一线，锋不染尘
+			'''
+	}
+
+	CloudbrewGourd: {
+		DisplayName: 一壶酒
+		Tooltip:
+			'''
+			倒一杯敬天，剑仙乘云而来
+			（未曾问剑时，请来的是云上饮酒的他）
+			（开发测试版：一块土即可合成）
+			'''
+	}
+}
+
+Projectiles: {
+	FlyingSword.DisplayName: 御剑
+	InkBurst.DisplayName: 墨痕
+	FallingLeaf.DisplayName: 落叶
+	RingSword.DisplayName: 剑阵
+	RiverSword.DisplayName: 剑河
+	InkSword.DisplayName: 墨剑
+	BrushSweep.DisplayName: 一笔画地
+	DismissQi.DisplayName: 拂袖剑气
+	WineBlade.DisplayName: 醉剑
+	CalligraphyStroke.DisplayName: 永字八法
+	ClearmoonSwing.DisplayName: 清月剑
+	ClearmoonQi.DisplayName: 清月剑气
+	GuardSword.DisplayName: 罡气护体
+}
+
+Buffs: {
+	Tipsy: {
+		DisplayName: 微醺
+		Description: 伤害、防御、生命再生、移速都提升了
+	}
+
+	SwordWill: {
+		DisplayName: 剑意
+		Description: 剑类伤害与攻速随层数提升
+	}
+
+	WanderingCloudBuff: {
+		DisplayName: 乘云
+		Description: 踏云而行
+	}
+}
+
+Mounts.WanderingCloud.MountName: 云

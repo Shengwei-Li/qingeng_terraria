@@ -1,0 +1,17 @@
+# ── 密钥：绝不提交 ──
+APIKEY*
+**/APIKEY*
+*.key
+.env
+
+# ── 编译产物 ──
+bin/
+obj/
+.vs/
+*.user
+
+# ── PixelLab 试验：只留脚本，生成的中间图、接口说明不进仓库（定稿在 design_image/定稿）──
+design_image/pixel_draft/
+design_image/pixellab_test/*
+!design_image/pixellab_test/*.py
+__pycache__/

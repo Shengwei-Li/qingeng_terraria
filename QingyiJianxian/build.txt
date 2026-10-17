@@ -1,0 +1,4 @@
+displayName = 青衣剑仙
+author = lishe
+version = 0.1.0
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*

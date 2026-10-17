@@ -1,0 +1,4 @@
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<!-- 指向 tModLoader 安装目录。tModLoader 换了安装位置时改这里。 -->
+	<Import Project="D:\steam\MAIN\steamapps\common\tModLoader\tMLMod.targets" />
+</Project>
