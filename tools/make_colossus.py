@@ -46,4 +46,18 @@ core = np.clip(np.minimum(px - (x0 - feather), (x1 + feather) - px) / feather, 0
 core_rgba = rgba.copy()
 core_rgba[..., 3] = (alpha * core * 255).astype(np.uint8)
 Image.fromarray(core_rgba, "RGBA").save(OUT / "ColossusCore.png")
+
+# 闭眼版核心层：眨眼时用。眼睛（缩小后约 x 425-447，y 173-181）画上眼睑和一道下弯的睫毛线
+closed = core_rgba.copy()
+EYE_X0, EYE_X1, EYE_CX = 424, 448, 436
+for x in range(EYE_X0, EYE_X1 + 1):
+    t = (x - EYE_CX) / ((EYE_X1 - EYE_X0) / 2)
+    lash_y = 179 + round(1.5 * (1 - t * t))      # 闭上的眼是一道向下弯的弧
+    for y in range(173, lash_y):
+        k = (y - 173) / max(lash_y - 173, 1)
+        lid = (int(200 + 26 * k), int(150 + 30 * k), int(135 + 27 * k))  # 上深下浅的眼睑
+        closed[y, x, :3] = lid
+    for y in (lash_y, lash_y + 1):
+        closed[y, x, :3] = (58, 42, 42)
+Image.fromarray(closed, "RGBA").save(OUT / "ColossusCoreClosed.png")
 print("colossus layers written", (w, h))

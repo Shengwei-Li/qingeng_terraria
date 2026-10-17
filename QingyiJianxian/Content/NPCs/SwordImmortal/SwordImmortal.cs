@@ -891,7 +891,11 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 					Projectile.NewProjectile(NPC.GetSource_FromAI(), player.Center, Vector2.Zero,
 						ModContent.ProjectileType<CalligraphyStroke>(), ProjDamage(75, 55), 0f, Main.myPlayer, i, i * CalligraphyStroke.StrokeGap);
 			}
-			if (++Timer >= 10 + (CalligraphyStroke.StrokeCount - 1) * CalligraphyStroke.StrokeGap + 70)
+			// 写字时也不闲着：每隔一会儿掷一把飞剑追人（三阶段不画红线，只有寒光）
+			if (Timer > 30 && (int)Timer % 40 == 0 && Timer < 10 + CalligraphyStroke.EndAt && Main.netMode != NetmodeID.MultiplayerClient)
+				Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.Zero, ModContent.ProjectileType<FlyingSword>(),
+					ProjDamage(70, 52), 0f, Main.myPlayer, NPC.whoAmI, FlyingSword.Count / 2, 24);
+			if (++Timer >= 10 + CalligraphyStroke.EndAt + 20)
 				NextInScript();
 		}
 

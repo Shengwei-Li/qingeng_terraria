@@ -11,18 +11,23 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 {
 	/// <summary>
 	/// 永字八法 / The Eight Strokes of Eternity: 剑仙以剑为笔，在天地间写一个巨大的"永"字，玩家就站在字里。
-	/// 一笔一个弹幕：先洇出淡墨的笔路（预警），再一笔写过去，墨痕停留片刻（有伤害），然后淡去。
-	/// 前一笔落下时，下一笔的笔路已经洇出来——要读笔顺躲。
+	/// 字有两千像素见方，铺满整个领域（领域边界会把人推回来，没有字外可躲）。
+	/// 一笔一个弹幕：先洇出淡墨的笔路（预警），再一笔写过去。写过的笔画不消失，一直伤人到整个字写完，
+	/// 场地被墨痕越切越碎——要在字的留白里找路。前一笔落下时，下一笔的笔路已经洇出来，要读笔顺躲。
 	/// Center = 字的中心；ai[0] = 第几笔（0-7），ai[1] = 这一笔开始洇出的延迟。
 	/// </summary>
 	public class CalligraphyStroke : ModProjectile
 	{
-		public const float Size = 1000f;     // 字有多大（边长）
-		public const int StrokeGap = 22;      // 相邻两笔的间隔
-		private const int WarnTime = 32;
-		private const int WriteTime = 12;
-		private const int LingerTime = 20;
+		public const float Size = 2000f;     // 字有多大（边长），铺满领域
+		public const int StrokeGap = 18;      // 相邻两笔的间隔
+		private const int WarnTime = 26;
+		private const int WriteTime = 10;
+		private const int HoldAfter = 30;     // 最后一笔写完后，整个字再停留这么久
 		private const int FadeTime = 20;
+		private const float WidthScale = 1.6f;
+
+		/// <summary>整个字写完、所有墨痕一起淡去的时刻（各笔共用，从这一批弹幕生成算起）。</summary>
+		public const int EndAt = (StrokeCount - 1) * StrokeGap + WarnTime + WriteTime + HoldAfter;
 
 		// 永字八法：侧（点）、勒（横）、努（竖）、趯（钩）、策（提）、掠（长撇）、啄（短撇）、磔（捺）。
 		// 坐标在 0..1 的方格里（y 向下），每笔是起笔到收笔的几个点；粗细是起笔和收笔处的宽度
@@ -47,7 +52,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 		private float Local => Age - Delay;              // 这一笔自己的时间
 		private bool Warning => Local >= 0 && Local < WarnTime;
 		private float WriteProgress => MathHelper.Clamp((Local - WarnTime) / WriteTime, 0f, 1f);
-		private bool Harmful => Local >= WarnTime && Local < WarnTime + WriteTime + LingerTime;
+		private bool Harmful => Local >= WarnTime && Age < EndAt;
 		private Vector2 charCenter;
 
 		public override void SetDefaults()
@@ -67,7 +72,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			if (Age == 0)
 			{
 				charCenter = Projectile.Center;
-				Projectile.timeLeft = Delay + WarnTime + WriteTime + LingerTime + FadeTime + 2;
+				Projectile.timeLeft = EndAt + FadeTime + 2;
 			}
 			Projectile.Center = charCenter;
 			Projectile.velocity = Vector2.Zero;
@@ -95,7 +100,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			return charCenter + (p - new Vector2(0.5f)) * Size;
 		}
 
-		private float WidthAt(float t) => MathHelper.Lerp(Strokes[Index].startWidth, Strokes[Index].endWidth, t);
+		private float WidthAt(float t) => MathHelper.Lerp(Strokes[Index].startWidth, Strokes[Index].endWidth, t) * WidthScale;
 
 		public override bool? Colliding(Rectangle projHitbox, Rectangle target)
 		{
@@ -133,7 +138,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			float written = WriteProgress;
 			for (int i = 0; i < n; i++)
 				pts[i] = PointAt(written * (1f - i / (float)(n - 1)));
-			float fade = 1f - MathHelper.Clamp((Local - WarnTime - WriteTime - LingerTime) / FadeTime, 0f, 1f);
+			float fade = 1f - MathHelper.Clamp((Age - EndAt) / FadeTime, 0f, 1f);
 			Trail.Draw(pts, p => WidthAt(written * (1f - p)), p => Fx.Ink * 0.95f * fade, Trail.Brush.Value);
 			return false;
 		}
