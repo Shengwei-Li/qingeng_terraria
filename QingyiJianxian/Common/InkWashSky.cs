@@ -67,7 +67,6 @@ namespace QingyiJianxian.Common
 		}
 
 		// 法相贴图里的位置（像素，见 tools/make_colossus.py 的输出）
-		private static readonly Vector2 ColossusEye = new(436f, 178f);   // 露出的那只眼
 		private const float BladeX = 477f;                                // 竖在脸前的剑身中线
 		private const int WindStrip = 3;                                  // 风吹波动的条带高度
 
@@ -75,7 +74,6 @@ namespace QingyiJianxian.Common
 		/// 法天相地：空白天幕上剑仙本人的法相，剑竖在脸前只露一只眼。
 		///   风：外层（长发、发带、衣袖、云）按水平条带随风摆动，越往上摆得越大；中间的脸、剑、手不动；
 		///   眨眼：每隔几秒眨一次（换成闭眼的核心层）；
-		///   眼光：领域里那只眼一直有淡淡青光在呼吸，最后一剑时大亮；
 		///   剑光：每隔几秒一道寒光沿剑身从上往下扫过；
 		///   云雾：身前身后几缕流云横飘；整体随呼吸极轻地起伏。
 		/// 剑仙化光没入时整幅泛起青辉。
@@ -120,18 +118,7 @@ namespace QingyiJianxian.Common
 			{
 				Vector2 at = topLeft + new Vector2(BladeX, MathHelper.Lerp(0f, 300f, sweep)) * scale;
 				float s = MathF.Sin(MathF.PI * sweep);
-				ScreenCircle(sb, Fx.SoftGlowLarge.Value, at, 40f * scale, Color.White * 0.55f * s * fade);
 				ScreenLine(sb, at - new Vector2(0f, 26f * scale), at + new Vector2(0f, 26f * scale), Color.White * 0.8f * s * fade, 2.5f * scale);
-			}
-
-			// 眼光：只在虹膜上泛一层淡青，加一颗针尖大的高光——像眼里有光，不是贴一块圆片。
-			// 领域里一直淡淡地呼吸；最后一剑时亮起来。闭眼那几帧不亮
-			float eye = MathHelper.Clamp(0.3f + 0.2f * MathF.Sin(t * 2f) + eyeFinal, 0f, 1.3f) * fade;
-			if (!blinking && eye > 0.01f)
-			{
-				Vector2 at = topLeft + ColossusEye * scale;
-				ScreenCircle(sb, Fx.SoftGlowLarge.Value, at, (14f + 30f * eyeFinal) * scale, new Color(110, 225, 215) * 0.45f * eye);
-				ScreenCircle(sb, Fx.SoftGlowLarge.Value, at + new Vector2(1.5f, -1f) * scale, (2.5f + 2f * eyeFinal) * scale, Color.White * eye);
 			}
 
 			DrawMist(sb, topLeft, flow, scale, fade, t, behind: false);
@@ -157,10 +144,9 @@ namespace QingyiJianxian.Common
 
 		private void DrawSunOrMoon(SpriteBatch sb, float night, float domain)
 		{
-			// 一轮淡淡的日/月，不抢戏：白天暖白，夜里冷白，领域里是淡青的；外圈一层晕
+			// 一轮淡淡的日/月，不抢戏：白天暖白，夜里冷白，领域里是淡青的
 			Vector2 pos = new(Main.screenWidth * 0.78f, Main.screenHeight * 0.18f);
 			Color disc = Color.Lerp(Color.Lerp(new Color(250, 236, 214), new Color(232, 240, 250), night), new Color(178, 228, 222), domain);
-			ScreenCircle(sb, Fx.SoftGlowLarge.Value, pos, 260f, disc * 0.35f * intensity);
 			ScreenCircle(sb, Fx.Disc.Value, pos, 76f, disc * 0.85f * intensity);
 		}
 
