@@ -135,6 +135,27 @@ WILL = [
 ]
 x2(render(WILL)).save(buffs / "SwordWill.png")
 
+# 剑被夺（减益图标）：一柄清月剑，被一道朱砂红叉划过
+DISARMED = [
+    "................",
+    ".............KS.",
+    "............KSsK",
+    "...........KSsK.",
+    "..R.......KSsK.R",
+    "...R.....KSsK.R.",
+    "....R...KSsK.R..",
+    ".....R.KSsK.R...",
+    "......RSsKRR....",
+    ".....KYRRR......",
+    "....KcYKRR......",
+    "...KcK.R..R.....",
+    "..KcK.R....R....",
+    ".KcK.R......R...",
+    ".KK.R........R..",
+    "................",
+]
+x2(render(DISARMED)).save(buffs / "Disarmed.png")
+
 # 坐骑：两帧，第二帧整体下沉 1 像素，像云在轻轻呼吸。帧竖着排
 c = Image.open(ART / "坐骑_云.png").convert("RGBA")
 fw, fh = c.width, c.height + 1
