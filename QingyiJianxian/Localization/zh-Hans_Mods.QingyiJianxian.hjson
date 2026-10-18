@@ -33,6 +33,16 @@ NPCs: {
 }
 
 Items: {
+	SwordImmortalBag: {
+		DisplayName: 宝藏袋（青衣剑仙）
+		Tooltip: "{$CommonItemTooltip.RightClickToOpen}"
+	}
+
+	SwordImmortalTrophy.DisplayName: 青衣剑仙纪念杯
+	SwordImmortalRelic.DisplayName: 青衣剑仙遗物
+
+	SwordImmortalMask.DisplayName: 青衣剑仙面具
+
 	CloudweaveSilk: {
 		DisplayName: 云纹绡
 		Tooltip: 剑仙衣袂间的仙气，凝成一匹轻绡
@@ -97,11 +107,11 @@ Items: {
 
 	CloudbrewGourd: {
 		DisplayName: 一壶酒
+		RecipeCondition: 已与剑仙问剑
 		Tooltip:
 			'''
 			倒一杯敬天，剑仙乘云而来
 			（未曾问剑时，请来的是云上饮酒的他）
-			（开发测试版：一块土即可合成）
 			'''
 	}
 }

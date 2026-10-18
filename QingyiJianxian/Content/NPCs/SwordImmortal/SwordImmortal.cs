@@ -1164,23 +1164,37 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			SoundEngine.PlaySound(SoundID.Item1 with { Pitch = -0.3f }, NPC.Center);
 			if (Main.netMode == NetmodeID.MultiplayerClient)
 				return;
-			// 每次必给：云纹绡（织青衫，约两次凑齐）和青云药酒。
-			// 第一次问剑：清月剑和一壶酒必给（赠剑是剧情）；之后清月剑 1/3。
-			// 剑穗 1/2，御剑诀（坐骑）1/4，是再来打的动力
+			// 普通模式：一件件抛出——每次必给云纹绡（织青衫，约两次凑齐）和青云药酒；
+			//   清月剑第一次必给、之后 1/3，剑穗 1/2，御剑诀（坐骑）1/4，面具 1/7。
+			// 专家 / 大师：改为每人一个宝藏袋（联机各拿各的，袋里给得更多），见 SwordImmortalBag。
+			// 不论模式：第一次问剑，清月剑和一壶酒由剑仙亲手抛出（赠剑是剧情）；纪念杯 1/10；大师模式再给遗物。
 			bool first = !WorldFlags.DownedSwordImmortal;
-			var gifts = new System.Collections.Generic.List<(int type, int stack)>
+			var gifts = new System.Collections.Generic.List<(int type, int stack)>();
+			if (Main.expertMode)
 			{
-				(ModContent.ItemType<Items.CloudweaveSilk>(), Main.rand.Next(10, 13)),
-				(ModContent.ItemType<Items.AzureCloudDraught>(), Main.rand.Next(5, 9)),
-			};
-			if (first || Main.rand.NextBool(3))
-				gifts.Add((ModContent.ItemType<Items.Clearmoon>(), 1));
+				NPC.DropItemInstanced(NPC.Center, NPC.Size, ModContent.ItemType<Items.SwordImmortalBag>());
+				if (first)
+					gifts.Add((ModContent.ItemType<Items.Clearmoon>(), 1));
+			}
+			else
+			{
+				gifts.Add((ModContent.ItemType<Items.CloudweaveSilk>(), Main.rand.Next(10, 13)));
+				gifts.Add((ModContent.ItemType<Items.AzureCloudDraught>(), Main.rand.Next(5, 9)));
+				if (first || Main.rand.NextBool(3))
+					gifts.Add((ModContent.ItemType<Items.Clearmoon>(), 1));
+				if (Main.rand.NextBool(2))
+					gifts.Add((ModContent.ItemType<Items.InkwakeTassel>(), 1));
+				if (Main.rand.NextBool(4))
+					gifts.Add((ModContent.ItemType<Items.LitanyOfSwordflight>(), 1));
+				if (Main.rand.NextBool(7))
+					gifts.Add((ModContent.ItemType<Items.Armor.SwordImmortalMask>(), 1));
+			}
 			if (first)
 				gifts.Add((ModContent.ItemType<Items.CloudbrewGourd>(), 1));
-			if (Main.rand.NextBool(2))
-				gifts.Add((ModContent.ItemType<Items.InkwakeTassel>(), 1));
-			if (Main.rand.NextBool(4))
-				gifts.Add((ModContent.ItemType<Items.LitanyOfSwordflight>(), 1));
+			if (Main.rand.NextBool(10))
+				gifts.Add((ModContent.ItemType<Items.SwordImmortalTrophy>(), 1));
+			if (Main.masterMode)
+				gifts.Add((ModContent.ItemType<Items.SwordImmortalRelic>(), 1));
 			float toPlayer = Math.Sign(player.Center.X - NPC.Center.X);
 			for (int i = 0; i < gifts.Count; i++)
 			{

@@ -7,7 +7,10 @@ using Terraria.ModLoader;
 
 namespace QingyiJianxian.Content.Items
 {
-	/// <summary>一壶酒 / Cloudbrew Gourd: pour a cup to heaven and the Sword Immortal comes.</summary>
+	/// <summary>
+	/// 一壶酒 / Cloudbrew Gourd: pour a cup to heaven and the Sword Immortal comes.
+	/// 第一次问剑后剑仙亲手抛给你；丢了或给队友，可以在酒桶旁用麦芽酒和云纹绡酿（问过剑才解锁）。
+	/// </summary>
 	public class CloudbrewGourd : ModItem
 	{
 		public override void SetStaticDefaults()
@@ -29,9 +32,6 @@ namespace QingyiJianxian.Content.Items
 			Item.value = Item.buyPrice(gold: 5);
 		}
 
-		// 开发测试用：右键总是请来云上饮酒的他，方便反复测试初遇
-		public override bool AltFunctionUse(Player player) => true;
-
 		public override bool CanUseItem(Player player)
 			=> !NPC.AnyNPCs(ModContent.NPCType<SwordImmortal>()) && !NPC.AnyNPCs(ModContent.NPCType<WanderingImmortal>());
 
@@ -41,8 +41,7 @@ namespace QingyiJianxian.Content.Items
 			{
 				SoundEngine.PlaySound(SoundID.Item3, player.position); // 倒酒
 				// 还没和他问过剑：请来的是云上饮酒的他（初遇）；问过剑之后，他直接乘云而来开战
-				bool encounter = !WorldFlags.DownedSwordImmortal || player.altFunctionUse == 2;
-				int type = encounter ? ModContent.NPCType<WanderingImmortal>() : ModContent.NPCType<SwordImmortal>();
+				int type = WorldFlags.DownedSwordImmortal ? ModContent.NPCType<SwordImmortal>() : ModContent.NPCType<WanderingImmortal>();
 				if (Main.netMode != NetmodeID.MultiplayerClient)
 					NPC.SpawnOnPlayer(player.whoAmI, type);
 				else
@@ -53,9 +52,12 @@ namespace QingyiJianxian.Content.Items
 
 		public override void AddRecipes()
 		{
-			// 开发测试用：一块土即可合成。正式配方在首次接剑成功后解锁（见设计文档）
+			var asked = new Condition(this.GetLocalization("RecipeCondition"), () => WorldFlags.DownedSwordImmortal);
 			CreateRecipe()
-				.AddIngredient(ItemID.DirtBlock)
+				.AddIngredient(ItemID.Ale, 5)
+				.AddIngredient<CloudweaveSilk>(3)
+				.AddTile(TileID.Kegs)
+				.AddCondition(asked)
 				.Register();
 		}
 	}

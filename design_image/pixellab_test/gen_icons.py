@@ -30,6 +30,12 @@ ITEMS = {
     "crown2": (32, 32, "side view of a small chinese scholar topknot crown (guan) carved from green jade, sitting on nothing, "
                        "a long white jade hairpin piercing through it horizontally, two thin teal silk ribbons trailing down to one side, "
                        "elegant hair accessory, " + STYLE),
+    "bag": (32, 32, "a boss treasure bag: a plump white silk pouch embroidered with teal clouds, tied at the top with a red cord, "
+                    "a small jade sword charm hanging from the cord, " + STYLE),
+    "trophy": (48, 48, "a square wall trophy plaque with a dark lacquered wooden frame and gold corners, showing the portrait of a chinese "
+                       "sword immortal with black hair in a high topknot and a teal ribbon, a straight sword crossed behind, " + STYLE),
+    "relic": (48, 48, "a master mode relic statue: a small golden jade figure of a chinese sword immortal in flowing robes standing on a "
+                      "carved cloud, holding a straight sword, set on a dark stone pedestal, glowing gold, " + STYLE),
     "cloud": (64, 24, "a small fluffy white auspicious chinese cloud (xiangyun) seen from the side, soft teal shading underneath, "
                       "swirl curls at the ends, flat bottom you could stand on, terraria mount sprite, pixel art, transparent background"),
 }

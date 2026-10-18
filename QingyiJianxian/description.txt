@@ -1,4 +1,55 @@
 云上有人倚醉饮酒，青衣如水。
 你若不扰他，他便不理你。
 
-（开发中）
+【青衣剑仙】一位水墨风格的剑仙 Boss，肉后即可挑战，定位与猪龙鱼公爵相当。
+他不会被杀死：问剑，点到为止。接下他的最后一剑，他便赠剑离去。
+
+■ 初遇
+  · 打败骷髅王后，白天的地表偶尔会遇到他倚在云上喝酒（每天最多一次）
+  · 肉前去惹他：他懒得起身，拂袖一道剑气把你赶走，不知进退可能真的会死
+  · 肉后惹他第二下：他起身拔剑，问剑开始
+
+■ 三个阶段
+  · 问剑：一剑横江、御剑术、落叶成剑
+  · 剑意：天地化作水墨山水；瞬身连斩、剑河、剑阵
+  · 领域：天地空白，天上浮现他的法相；万剑悬空、一笔画地、剑气纵横、醉剑
+  · 最后一剑：人剑合一，一剑开天——只能接，不能躲
+
+■ 以剑问剑 · 夺剑
+  · 用剑类武器打赢，他会认可你
+  · 拿他赠的清月剑去打他？他会把剑夺走，换成双剑
+
+■ 装备
+  · 清月剑（三段连斩，月牙剑气）、剑穗、青云药酒、御剑诀（云坐骑）
+  · 青衫套装：用他留下的云纹绡织成，踏云冲刺、剑意叠层、罡气护体
+  · 专家宝藏袋、纪念杯、大师遗物、面具
+
+当前为测试版（0.5），配乐暂用原版曲目。问题与建议：https://github.com/Shengwei-Li/qingeng_terraria
+
+————————————————————————
+
+Upon a cloud one lounges, wine in hand, robes the hue of clear water.
+Trouble him not, and he will pay thee no heed.
+
+The Azure-Clad Sword Immortal is an ink-wash xianxia boss, fightable after the Wall of Flesh — a challenge on par with Duke Fishron.
+He cannot be slain: this is a questioning of blades, not a killing. Receive his final stroke, and he will leave thee his sword and drift away.
+
+■ The Meeting
+  · After Skeletron, thou mayest find him drinking upon a cloud above the surface by day (at most once a day)
+  · Disturb him before hardmode, and a lazy flick of his sleeve will drive thee off — persist, and it may be thy death
+  · Strike him twice in hardmode, and he rises and draws
+
+■ Three Phases
+  · The Questioning Blade, Sword-Will, and The Unwritten World — ink-wash skies, a colossal likeness of the Immortal, rivers and rings of blades
+  · The Final Stroke: man and sword made one; it cannot be dodged, only received
+
+■ Blade Answers Blade · The Blade Reclaimed
+  · Win with swords, and he shall acknowledge thee
+  · Dare to strike him with the very blade he gave thee? He takes it back, and fights with two
+
+■ Gear
+  · Clearmoon, the Inkwake Tassel, Azure Cloud Draught, the Litany of Swordflight (a cloud mount)
+  · The Azure Wayfarer set, woven from the Cloudweave Silk he leaves behind
+  · Treasure bag, trophy, relic and mask
+
+Beta (0.5); vanilla music is used for now. Feedback: https://github.com/Shengwei-Li/qingeng_terraria

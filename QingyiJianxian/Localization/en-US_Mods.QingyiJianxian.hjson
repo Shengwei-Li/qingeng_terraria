@@ -33,6 +33,16 @@ NPCs: {
 }
 
 Items: {
+	SwordImmortalBag: {
+		DisplayName: Treasure Bag (The Azure-Clad Sword Immortal)
+		Tooltip: "{$CommonItemTooltip.RightClickToOpen}"
+	}
+
+	SwordImmortalTrophy.DisplayName: Azure-Clad Sword Immortal Trophy
+	SwordImmortalRelic.DisplayName: Azure-Clad Sword Immortal Relic
+
+	SwordImmortalMask.DisplayName: Azure-Clad Sword Immortal Mask
+
 	CloudweaveSilk: {
 		DisplayName: Cloudweave Silk
 		Tooltip: The immortal air of his sleeves, gathered into a length of gauze
@@ -97,11 +107,11 @@ Items: {
 
 	CloudbrewGourd: {
 		DisplayName: Cloudbrew Gourd
+		RecipeCondition: After crossing blades with the Sword Immortal
 		Tooltip:
 			'''
 			Pour a cup unto heaven, and the Immortal cometh upon the clouds
 			(Ere thou hast crossed blades with him, he cometh only to drink)
-			(Dev build: crafted from a single block of dirt)
 			'''
 	}
 }
