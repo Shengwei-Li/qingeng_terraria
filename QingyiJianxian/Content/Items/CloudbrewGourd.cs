@@ -40,8 +40,9 @@ namespace QingyiJianxian.Content.Items
 			if (player.whoAmI == Main.myPlayer)
 			{
 				SoundEngine.PlaySound(SoundID.Item3, player.position); // 倒酒
-				// 还没和他问过剑：请来的是云上饮酒的他（初遇）；问过剑之后，他直接乘云而来开战
-				int type = WorldFlags.DownedSwordImmortal ? ModContent.NPCType<SwordImmortal>() : ModContent.NPCType<WanderingImmortal>();
+				// 有一壶酒就说明这个角色已经问过剑（哪怕是在别的存档）：肉后他直接乘云而来开战。
+				// 肉前打不了，请来的只是云上饮酒的他，惹他会被拂袖赶走
+				int type = Main.hardMode ? ModContent.NPCType<SwordImmortal>() : ModContent.NPCType<WanderingImmortal>();
 				if (Main.netMode != NetmodeID.MultiplayerClient)
 					NPC.SpawnOnPlayer(player.whoAmI, type);
 				else
