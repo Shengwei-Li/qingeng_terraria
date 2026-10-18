@@ -33,7 +33,7 @@ def tile_sheet(img, cols, rows):
 
 # 宝藏袋
 bag = Image.open(ART / "宝藏袋.png").convert("RGBA")
-x2(bag).save(ITEMS / "SwordImmortalBag.png")
+bag.save(ITEMS / "SwordImmortalBag.png")  # 原尺寸，理由同 draw_icons.py
 
 # 纪念杯：48×48 的画框，1:1 铺成 3×3 墙挂物块；物品图标就是这幅画
 trophy = Image.open(ART / "纪念杯.png").convert("RGBA").resize((48, 48), Image.Resampling.NEAREST)
@@ -46,11 +46,14 @@ relic.thumbnail((48, 48), Image.Resampling.NEAREST)
 relic.save(ITEMS / "SwordImmortalRelic.png")
 tile_sheet(relic, 3, 3).save(TILES / "SwordImmortalRelicTile.png")
 
-# ── 面具：剑仙的发型（黑发高髻、青发带、脑后长发），20 帧，人物朝右 ──
+# ── 面具：像原版 Boss 面具一样画整个头——剑仙的脸（眉、眼、嘴）和发型（黑发高髻、青发带、脑后长发），20 帧，人物朝右 ──
+# 物品里关掉了玩家自己的头（DrawHead = false），脸全由这里画
 # 头部位置量自 ExampleMod 的兜帽模板：普通帧头在 x 8-30、y 10-30；第 7-9、14-16 帧上移 2 像素
 hood = Image.open(ROOT / "tools" / "armor_templates" / "ExampleHood_Head.png").convert("RGBA")
 HAIR, HAIR_HI, OUT = (30, 32, 40), (64, 70, 86), (14, 14, 18)
 TEAL, TEAL_D = (108, 171, 152), (44, 102, 97)
+SKIN, SKIN_D = (242, 210, 178), (212, 166, 138)
+BROW, EYE_DARK, EYE_WHITE, LIP = (34, 30, 34), (30, 52, 60), (236, 240, 240), (196, 130, 116)
 BOB = {7, 8, 9, 14, 15, 16}
 mask = Image.new("RGBA", (40, 56 * 20), (0, 0, 0, 0))
 for f in range(20):
@@ -67,6 +70,19 @@ for f in range(20):
             on_back = x < 22
             if on_top or on_back:
                 px[x, y] = (HAIR_HI if (x + y) % 7 == 0 else HAIR) + (255,)
+            else:
+                # 脸：靠后脑一侧和下巴略暗
+                shade = x <= 23 or y >= top + 18
+                px[x, y] = (SKIN_D if shade else SKIN) + (255,)
+    # 五官（朝右）：剑眉、一只眼（眼白 + 深青瞳）、淡淡的嘴
+    ey = top + 10
+    for x in range(24, 29):
+        px[x, ey - 2] = BROW + (255,)
+    px[25, ey] = EYE_WHITE + (255,)
+    px[26, ey] = EYE_DARK + (255,)
+    px[26, ey - 1] = EYE_DARK + (255,)
+    px[27, ey + 5] = LIP + (255,)
+    px[26, ey + 5] = LIP + (255,)
     # 脑后长发垂到肩下，末梢随走路轻摆
     sway = round(math.sin(f * 1.1)) if f >= 6 else 0
     for i in range(14):

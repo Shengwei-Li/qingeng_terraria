@@ -10,8 +10,8 @@ namespace QingyiJianxian.Content.Items
 	{
 		public override void SetDefaults()
 		{
-			Item.width = 20;
-			Item.height = 56;
+			Item.width = 10;
+			Item.height = 28;
 			Item.accessory = true;
 			Item.rare = ItemRarityID.Yellow;
 			Item.value = Item.sellPrice(gold: 5);

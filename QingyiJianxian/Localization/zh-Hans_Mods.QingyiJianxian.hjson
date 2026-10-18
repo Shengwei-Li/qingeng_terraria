@@ -38,10 +38,20 @@ Items: {
 		Tooltip: "{$CommonItemTooltip.RightClickToOpen}"
 	}
 
-	SwordImmortalTrophy.DisplayName: 青衣剑仙纪念杯
-	SwordImmortalRelic.DisplayName: 青衣剑仙遗物
+	SwordImmortalTrophy: {
+		DisplayName: 青衣剑仙纪念杯
+		// Tooltip: ""
+	}
 
-	SwordImmortalMask.DisplayName: 青衣剑仙面具
+	SwordImmortalRelic: {
+		DisplayName: 青衣剑仙遗物
+		// Tooltip: ""
+	}
+
+	SwordImmortalMask: {
+		DisplayName: 青衣剑仙面具
+		// Tooltip: ""
+	}
 
 	CloudweaveSilk: {
 		DisplayName: 云纹绡

@@ -21,8 +21,8 @@ namespace QingyiJianxian.Content.Items
 
 		public override void SetDefaults()
 		{
-			Item.width = 52;
-			Item.height = 52;
+			Item.width = 21;
+			Item.height = 28;
 			Item.maxStack = Item.CommonMaxStack;
 			Item.consumable = true;
 			Item.rare = ItemRarityID.Purple;

@@ -102,7 +102,8 @@ mounts = MOD / "Content" / "Mounts"
 for d in (items, buffs, mounts):
     d.mkdir(parents=True, exist_ok=True)
 
-# 物品图标与坐骑云：用 PixelLab 生成后挑出的定稿（design_image/定稿），这里只负责放大到 2 倍放进模组
+# 物品图标：用 PixelLab 生成后挑出的定稿（design_image/定稿）。PixelLab 已按物品尺寸画好（约 30 像素），
+# 原尺寸放进模组；再放大 2 倍，掉在地上就和人一样高了
 for name, dst in [("青云药酒.png", items / "AzureCloudDraught.png"),
                   ("御剑诀.png", items / "LitanyOfSwordflight.png"),
                   ("剑穗.png", items / "InkwakeTassel.png"),
@@ -111,7 +112,7 @@ for name, dst in [("青云药酒.png", items / "AzureCloudDraught.png"),
                   ("青衫剑袍.png", items / "Armor" / "AzureWayfarerRobe.png"),
                   ("青衫云履.png", items / "Armor" / "AzureWayfarerBoots.png"),
                   ("青衫发冠.png", items / "Armor" / "AzureWayfarerCrown.png")]:
-    x2(Image.open(ART / name).convert("RGBA")).save(dst)
+    Image.open(ART / name).convert("RGBA").save(dst)
 
 x2(render(TIPSY)).save(buffs / "Tipsy.png")
 

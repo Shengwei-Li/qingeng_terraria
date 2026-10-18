@@ -14,8 +14,8 @@ namespace QingyiJianxian.Content.Items
 
 		public override void SetDefaults()
 		{
-			Item.width = 56;
-			Item.height = 52;
+			Item.width = 28;
+			Item.height = 26;
 			Item.maxStack = Item.CommonMaxStack;
 			Item.rare = ItemRarityID.Yellow;
 			Item.value = Item.sellPrice(silver: 40);

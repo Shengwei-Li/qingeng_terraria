@@ -21,8 +21,8 @@ namespace QingyiJianxian.Content.Items
 
 		public override void SetDefaults()
 		{
-			Item.width = 52;
-			Item.height = 60;
+			Item.width = 26;
+			Item.height = 30;
 			Item.maxStack = 1;
 			Item.useStyle = ItemUseStyleID.HoldUp;
 			Item.useTime = 30;

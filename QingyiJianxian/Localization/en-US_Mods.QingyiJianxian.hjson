@@ -38,10 +38,20 @@ Items: {
 		Tooltip: "{$CommonItemTooltip.RightClickToOpen}"
 	}
 
-	SwordImmortalTrophy.DisplayName: Azure-Clad Sword Immortal Trophy
-	SwordImmortalRelic.DisplayName: Azure-Clad Sword Immortal Relic
+	SwordImmortalTrophy: {
+		DisplayName: Azure-Clad Sword Immortal Trophy
+		Tooltip: ""
+	}
 
-	SwordImmortalMask.DisplayName: Azure-Clad Sword Immortal Mask
+	SwordImmortalRelic: {
+		DisplayName: Azure-Clad Sword Immortal Relic
+		Tooltip: ""
+	}
+
+	SwordImmortalMask: {
+		DisplayName: Azure-Clad Sword Immortal Mask
+		Tooltip: ""
+	}
 
 	CloudweaveSilk: {
 		DisplayName: Cloudweave Silk

@@ -18,8 +18,8 @@ namespace QingyiJianxian.Content.Items
 
 		public override void SetDefaults()
 		{
-			Item.width = 32;
-			Item.height = 48;
+			Item.width = 16;
+			Item.height = 24;
 			Item.useStyle = ItemUseStyleID.DrinkLiquid;
 			Item.useTime = 17;
 			Item.useAnimation = 17;

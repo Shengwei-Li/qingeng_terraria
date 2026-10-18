@@ -18,8 +18,8 @@ namespace QingyiJianxian.Content.Items.Armor
 
 		public override void SetDefaults()
 		{
-			Item.width = 44;
-			Item.height = 48;
+			Item.width = 22;
+			Item.height = 24;
 			Item.defense = 11;
 			Item.rare = ItemRarityID.Yellow;
 			Item.value = Item.sellPrice(gold: 4);
