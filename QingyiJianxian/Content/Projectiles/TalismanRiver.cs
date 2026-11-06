@@ -154,12 +154,19 @@ namespace QingyiJianxian.Content.Projectiles
 			return 1f - u * u * (3f - 2f * u);
 		}
 
+		/// <summary>起点渐起：头 10 列（80 像素）从一缕细气慢慢变宽变浓，不是一刀切开。</summary>
+		private static float StartFade(float i)
+		{
+			float u = MathHelper.Clamp(i / 10f, 0f, 1f);
+			return u * u * (3f - 2f * u);
+		}
+
 		/// <summary>第 i 列的浓淡：浪头刚过时最浓，过了一会儿从起点开始淡去；越近尽头越淡。</summary>
 		private float ColumnAlpha(float i)
 		{
 			float passed = Age - ArriveAt(i);
 			float a = 1f - MathHelper.Clamp((passed - 12f) / Linger, 0f, 1f);
-			return passed < 0 ? 0f : a * EndFade(i);
+			return passed < 0 ? 0f : a * EndFade(i) * (0.15f + 0.85f * StartFade(i));
 		}
 
 		public override void AI()
@@ -168,6 +175,18 @@ namespace QingyiJianxian.Content.Projectiles
 			if (count < 0)
 			{
 				Survey();
+				if (!Main.dedServ)
+				{
+					// 起势：一团水雾和光屑从剑符涌出，往前、往上散
+					Vector2 o = new(startX, (top[0] + bottom[0]) / 2f);
+					for (int k = 0; k < 14; k++)
+					{
+						Vector2 v = new Vector2(Dir * Main.rand.NextFloat(0.5f, 3.5f), Main.rand.NextFloat(-2.5f, 1f));
+						Fx.Mist(o + Main.rand.NextVector2Circular(14f, 22f), v, 1.3f);
+						if (k % 2 == 0)
+							Fx.Mote(o + Main.rand.NextVector2Circular(10f, 18f), v * 1.3f, 0.9f);
+					}
+				}
 				SoundEngine.PlaySound(SoundID.Item71 with { Pitch = -0.3f, Volume = 0.9f }, Projectile.Center);
 				SoundEngine.PlaySound(SoundID.Item21 with { Pitch = -0.2f }, Projectile.Center);
 			}
@@ -303,7 +322,7 @@ namespace QingyiJianxian.Content.Projectiles
 			var dBot = new float[count];
 			for (int i = 0; i < count; i++)
 			{
-				float mid = (dTop[i] + bottom[i]) / 2f, k = 0.35f + 0.65f * EndFade(i);
+				float mid = (dTop[i] + bottom[i]) / 2f, k = (0.35f + 0.65f * EndFade(i)) * (0.2f + 0.8f * StartFade(i));
 				dBot[i] = mid + (bottom[i] - mid) * k;
 				dTop[i] = mid - (mid - dTop[i]) * k;
 			}
@@ -327,6 +346,15 @@ namespace QingyiJianxian.Content.Projectiles
 			float lead = MathHelper.Clamp(70f / MathF.Max(n * 16f, 1f), 0.02f, 0.3f);
 			float Lead(float p) => walled && crashed ? 1f : MathHelper.SmoothStep(0.15f, 1f, MathHelper.Clamp(p / lead, 0f, 1f));
 			float Alpha(float p) => ColumnAlpha(Col(p)) * Lead(p);
+
+			// 起点一团白玉柔光：剑符化开的那一下，十几帧内淡去
+			if (Age < 16)
+			{
+				float g = 1f - Age / 16f;
+				Vector2 o = new(startX, (dTop[0] + dBot[0]) / 2f);
+				Fx.Circle(sb, Fx.SoftGlow.Value, o, 90f * (0.6f + 0.4f * (1f - g)), Fx.DeepTeal * (0.35f * g));
+				Fx.Circle(sb, Fx.SoftGlow.Value, o, 60f * (0.6f + 0.4f * (1f - g)), Fx.Jade * (0.5f * g));
+			}
 
 			// 上下沿一抹淡墨（不发光，和场景是一层）
 			Trail.Draw(edgeTop, p => 16f, p => Fx.Ink * (0.22f * Alpha(p)), Trail.Glow.Value);
