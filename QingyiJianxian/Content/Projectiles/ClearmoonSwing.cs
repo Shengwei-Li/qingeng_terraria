@@ -120,7 +120,7 @@ namespace QingyiJianxian.Content.Projectiles
 			Player owner = Main.player[Projectile.owner];
 			if (Age == 0)
 			{
-				duration = Math.Max(owner.itemAnimationMax, 8);
+				duration = owner.itemAnimationMax > 0 ? Math.Max(owner.itemAnimationMax, 8) : 16; // 没在挥剑时（演示命令直接生成）按 16 帧
 				aim = Projectile.velocity.ToRotation();
 				Projectile.velocity = Vector2.Zero; // 位置每帧跟着玩家，不需要速度
 			}
