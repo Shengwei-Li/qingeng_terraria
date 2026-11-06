@@ -58,8 +58,8 @@ for f in range(20):
     sway = math.sin((f - 6) * 0.9) if f >= 6 else 0.0
     frame = douli.draw((40, 56), (19.5, top + 4.5), sway=sway)
     hat.alpha_composite(frame, (0, 56 * f))
-hat.save(ITEMS / "Armor" / "SwordImmortalHat_Head.png")
-douli.draw((32, 30), (16.5, 11.5), scale=0.95, veil_front=16, veil_back=13).save(ITEMS / "Armor" / "SwordImmortalHat.png")
+douli.premultiply(hat).save(ITEMS / "Armor" / "SwordImmortalHat_Head.png")
+douli.premultiply(douli.draw((32, 30), (16.5, 11.5), scale=0.95, veil_front=16, veil_back=13)).save(ITEMS / "Armor" / "SwordImmortalHat.png")
 
 # 清流剑符：PixelLab 生成，原尺寸
 Image.open(ART / "清流剑符.png").convert("RGBA").save(ITEMS / "LingeringStreamTalisman.png")

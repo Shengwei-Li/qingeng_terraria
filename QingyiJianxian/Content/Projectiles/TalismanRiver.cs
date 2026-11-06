@@ -250,6 +250,15 @@ namespace QingyiJianxian.Content.Projectiles
 			if (f < 1)
 				return false;
 			float time = Main.GlobalTimeWrappedHourly;
+			// 上沿起伏：不顶着天花板的地方，水面一起一伏，不是一条硬直线
+			var dTop = new float[count];
+			for (int i = 0; i < count; i++)
+			{
+				float x = X(i);
+				dTop[i] = ceiling[i] ? top[i]
+					: top[i] + 9f + 6f * MathF.Sin(time * 5f - x * 0.018f * Dir) + 3f * MathF.Sin(time * 9f - x * 0.05f * Dir + 1f);
+				dTop[i] = MathF.Min(dTop[i], bottom[i] - 16f);
+			}
 
 			// 从浪头往回取点（Trail 要求头在前），每两列一个点
 			int n = f / 2 + 1;
@@ -261,12 +270,12 @@ namespace QingyiJianxian.Content.Projectiles
 			{
 				int i = Math.Max(f - k * 2, 0);
 				colIndex[k] = i;
-				center[k] = new Vector2(X(i), (top[i] + bottom[i]) / 2f);
-				edgeTop[k] = new Vector2(X(i), top[i]);
+				center[k] = new Vector2(X(i), (dTop[i] + bottom[i]) / 2f);
+				edgeTop[k] = new Vector2(X(i), dTop[i]);
 				edgeBottom[k] = new Vector2(X(i), bottom[i]);
 			}
 			int Col(float p) => colIndex[Math.Clamp((int)MathF.Round(p * (n - 1)), 0, n - 1)];
-			float Height(float p) { int i = Col(p); return bottom[i] - top[i]; }
+			float Height(float p) { int i = Col(p); return bottom[i] - dTop[i]; }
 			float Alpha(float p) => ColumnAlpha(Col(p));
 
 			// 上下沿一抹淡墨（不发光，和场景是一层）
@@ -288,11 +297,11 @@ namespace QingyiJianxian.Content.Projectiles
 				for (int k = 0; k < n; k++)
 				{
 					int i = colIndex[k];
-					float h = bottom[i] - top[i];
+					float h = bottom[i] - dTop[i];
 					float wave = MathF.Sin(time * 9f - X(i) * 0.025f * Dir + phase) * h * 0.13f
 						+ MathF.Sin(time * 5f - X(i) * 0.011f * Dir + phase * 2f) * h * 0.07f;
-					float y = MathHelper.Lerp(top[i] + 6f, bottom[i] - 6f, frac) + wave;
-					pts[k] = new Vector2(X(i), MathHelper.Clamp(y, top[i] + 3f, bottom[i] - 3f));
+					float y = MathHelper.Lerp(dTop[i] + 6f, bottom[i] - 6f, frac) + wave;
+					pts[k] = new Vector2(X(i), MathHelper.Clamp(y, dTop[i] + 3f, bottom[i] - 3f));
 				}
 				bool jade = s % 2 == 0;
 				float w = jade ? 7f : 12f;
@@ -314,7 +323,7 @@ namespace QingyiJianxian.Content.Projectiles
 				if (floor[i] && floor[j])
 					Fx.Line(sb, new Vector2(X(i), bottom[i] - 1f), new Vector2(X(j), bottom[j] - 1f), Fx.Jade * (0.85f * a * (0.5f + 0.5f * foam)), 3f + 2f * foam);
 				if (ceiling[i] && ceiling[j])
-					Fx.Line(sb, new Vector2(X(i), top[i] + 1f), new Vector2(X(j), top[j] + 1f), Fx.Jade * (0.4f * a * foam), 2f);
+					Fx.Line(sb, new Vector2(X(i), dTop[i] + 1f), new Vector2(X(j), dTop[j] + 1f), Fx.Jade * (0.4f * a * foam), 2f);
 			}
 
 			// 剑影：顺流疾射，比浪头还快一点，追到浪头为止
@@ -330,7 +339,7 @@ namespace QingyiJianxian.Content.Projectiles
 				float a = ColumnAlpha(i) * MathHelper.Clamp((Age - delay) / 4f, 0f, 1f);
 				if (a <= 0.05f || i >= count)
 					continue;
-				float y = MathHelper.Lerp(top[i] + 8f, bottom[i] - 8f, Hash(k, 3));
+				float y = MathHelper.Lerp(dTop[i] + 8f, bottom[i] - 8f, Hash(k, 3));
 				Vector2 head = new(X(i), y);
 				Vector2 tail = head - new Vector2(Dir * MathHelper.Lerp(18f, 34f, Hash(k, 4)), 0f);
 				Fx.Line(sb, tail, head, Fx.DeepTeal * (0.7f * a), 5f);
@@ -341,7 +350,7 @@ namespace QingyiJianxian.Content.Projectiles
 			if (Age < FlowFrames + 8 && !(walled && crashed && Age > FlowFrames))
 			{
 				float fa = 1f - MathHelper.Clamp((Age - FlowFrames) / 8f, 0f, 1f);
-				float xf = X(f), t0 = top[f], b0 = bottom[f], h = b0 - t0;
+				float xf = X(f), t0 = dTop[f], b0 = bottom[f], h = b0 - t0;
 				// 浪身：从下往上、往前卷
 				const int m = 12;
 				var curl = new Vector2[m];

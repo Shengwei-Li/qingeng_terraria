@@ -141,3 +141,15 @@ def draw(size, origin, scale=1.0, tilt=0.21, sway=0.0, veil_front=13, veil_back=
     out.alpha_composite(lined)
     out.alpha_composite(tail)  # 带尾压在帽子上，从青带后侧飘出去
     return out
+
+
+def premultiply(img):
+    """把半透明像素的颜色乘上透明度。游戏按预乘透明来画贴图；不预乘，淡淡的纱会画成一块实心的白。"""
+    out = img.copy()
+    px = out.load()
+    for y in range(out.height):
+        for x in range(out.width):
+            r, g, b, a = px[x, y]
+            if 0 < a < 255:
+                px[x, y] = (r * a // 255, g * a // 255, b * a // 255, a)
+    return out

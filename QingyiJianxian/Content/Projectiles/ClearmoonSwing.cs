@@ -242,7 +242,7 @@ namespace QingyiJianxian.Content.Projectiles
 			float life = t < SwingEnd ? 1f : 1f - (t - SwingEnd) / (1f - SwingEnd) * 1.6f;
 			if (life <= 0f)
 				return;
-			const int n = 14;
+			const int n = 32; // 采样密一些，挥得再快也是圆弧
 			float span = step * 4.5f; // 残影覆盖最近 4.5 帧的挥剑
 			var mid = new Vector2[n];
 			var tip = new Vector2[n];
