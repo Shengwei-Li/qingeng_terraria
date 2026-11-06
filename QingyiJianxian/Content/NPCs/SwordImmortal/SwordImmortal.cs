@@ -685,7 +685,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 				NextInScript();
 		}
 
-		// 剑河：三波，每波先画出河道（朱砂细线）和缺口（淡青），40 帧后剑流过来
+		// 剑河：三波，每波先画出河道（淡墨细线）和缺口（淡青），40 帧后剑流过来
 		private const int RiverWaves = 3;
 		private const int RiverFirstWarn = 10;
 		private const int RiverWaveGap = 55;
@@ -1570,19 +1570,26 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			// 锁定那一下，剑尖寒光一闪——这是所有难度都保留的提示
 			if (locked && Timer < T.AimEnd + 8)
 				Glint(sb, NPC.Center + swordHand + swordAngle.ToRotationVector2() * 60f, 1f - (Timer - T.AimEnd) / 8f);
-			// 一阶段画完整红线；二阶段红线只在瞄准时出现，锁定即消失；三阶段不画
+			// 一阶段：蓄势时剑意渐浓，锁定时一道寒光划过；二阶段：只有蓄势时的剑意，锁定即散；三阶段：都没有
 			if (tier >= 2 || (tier == 1 && locked))
 				return;
-			float progress = (Timer - T.WarnStart) / (T.AimEnd - T.WarnStart);
-			float alpha = locked ? (Timer % 4 < 2 ? 1f : 0.6f) : MathHelper.Clamp(progress, 0.15f, 0.8f);
-			float thickness = locked ? 4f : 2f;
-			Vector2 end = NPC.Center + dashDir * (T.Speed * (T.DashEnd - T.DashStart) + 200f);
-			Fx.Line(sb, NPC.Center, end, Fx.Cinnabar * alpha, thickness);
+			float progress = MathHelper.Clamp((Timer - T.WarnStart) / (T.AimEnd - T.WarnStart), 0f, 1f);
+			float reach = T.Speed * (T.DashEnd - T.DashStart);
+			Vector2 tip = NPC.Center + swordHand;
+			int seed = NPC.whoAmI * 31 + 7;
+			if (!locked)
+			{
+				Fx.SwordIntent(sb, tip, dashDir, reach * (0.25f + 0.45f * progress), 10f, 0.25f + 0.75f * progress, seed);
+				return;
+			}
+			float after = (Timer - T.AimEnd) / (T.DashStart - T.AimEnd);
+			Fx.SwordIntent(sb, tip, dashDir, reach * 0.7f, 10f, 1f - after, seed);
+			Fx.SwordIntentFlash(sb, tip, dashDir, reach * 0.8f, (Timer - T.AimEnd) / 7f);
 		}
 
 		/// <summary>
-		/// 预警线的强度，按阶段递减：0 = 完整红线（一阶段，教学），1 = 只在瞄准时出现、锁定即消失（二阶段），
-		/// 2 = 不画红线，只靠剑尖寒光、姿势和声音（三阶段）。大师模式从一阶段起就是 1。
+		/// 预警线的强度，按阶段递减：0 = 完整剑意（一阶段，教学：蓄势淡墨 + 锁定寒光划过），1 = 剑意只在蓄势时出现、锁定即消失（二阶段），
+		/// 2 = 没有剑意，只靠剑尖寒光、姿势和声音（三阶段）。大师模式从一阶段起就是 1。
 		/// 指出"往哪躲"的安全区提示（剑河的缝、剑阵的缺口、一笔画地的缝）不受影响。
 		/// </summary>
 		public static int TelegraphTier(NPC boss)
@@ -1618,7 +1625,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 					continue;
 				float baseY = riverBaseY + row * RiverSword.Spacing;
 				// 缺口画得淡一些，像一道墨晕留白，提示但不抢眼
-				Color c = gap ? Fx.PaleTeal * 0.16f : Fx.Cinnabar * 0.22f * pulse;
+				Color c = gap ? Fx.PaleTeal * 0.16f : Fx.Ink * 0.2f * pulse;
 				float thick = gap ? RiverSword.Spacing * (RiverSword.GapHalf * 2 + 1) * 0.6f : 1.5f;
 				for (int i = 0; i < segments; i++)
 				{

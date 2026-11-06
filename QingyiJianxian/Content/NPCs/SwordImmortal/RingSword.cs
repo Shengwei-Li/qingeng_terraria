@@ -77,7 +77,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			{
 				float t = (Age - (CloseAt - WarnTime)) / WarnTime;
 				Vector2 inward = Projectile.DirectionTo(RingCenter);
-				Fx.Line(sb, Projectile.Center, Projectile.Center + inward * Radius * 0.35f, Fx.Cinnabar * (0.15f + 0.4f * t), 1.5f);
+				Fx.SwordIntent(sb, Projectile.Center + inward * 20f, inward, Radius * 0.35f, 5f, 0.2f + 0.6f * t, Projectile.identity * 17);
 			}
 			if (Age >= CloseAt)
 			{

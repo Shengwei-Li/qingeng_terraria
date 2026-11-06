@@ -24,7 +24,7 @@
   · 青衫套装：用他留下的云纹绡织成，踏云冲刺、剑意叠层、罡气护体
   · 专家宝藏袋、纪念杯、大师遗物、面具
 
-当前为测试版（0.5），配乐暂用原版曲目。问题与建议：https://github.com/Shengwei-Li/qingeng_terraria
+当前为测试版（0.5.1），配乐暂用原版曲目。问题与建议：https://github.com/Shengwei-Li/qingeng_terraria
 
 ————————————————————————
 
@@ -52,4 +52,4 @@ He cannot be slain: this is a questioning of blades, not a killing. Receive his 
   · The Azure Wayfarer set, woven from the Cloudweave Silk he leaves behind
   · Treasure bag, trophy, relic and mask
 
-Beta (0.5); vanilla music is used for now. Feedback: https://github.com/Shengwei-Li/qingeng_terraria
+Beta (0.5.1); vanilla music is used for now. Feedback: https://github.com/Shengwei-Li/qingeng_terraria

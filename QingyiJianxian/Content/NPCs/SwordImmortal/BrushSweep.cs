@@ -87,14 +87,14 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 
 			if (Age < WarnTime)
 			{
-				// 预警：要被画满的两片区域先洇上一层淡墨（越来越浓），缝用淡青填出来，上下两道朱砂实线框住
+				// 预警：要被画满的两片区域先洇上一层淡墨（越来越浓），缝用淡青填出来，上下两道淡墨实线框住
 				float t = Age / WarnTime;
 				float pulse = 0.75f + 0.25f * MathF.Sin(Age * 0.35f);
 				Color wash = Fx.Ink * (0.05f + 0.12f * t) * pulse;
 				Fx.Line(sb, a + Vector2.UnitY * upperY, b + Vector2.UnitY * upperY, wash, BandHeight);
 				Fx.Line(sb, a + Vector2.UnitY * lowerY, b + Vector2.UnitY * lowerY, wash, BandHeight);
 				Fx.Line(sb, a + Vector2.UnitY * GapY, b + Vector2.UnitY * GapY, Fx.Teal * (0.1f + 0.12f * t), GapHalf * 2f);
-				DrawGapEdges(sb, a, b, Fx.Cinnabar * (0.4f + 0.5f * t), 3f);
+				DrawGapEdges(sb, a, b, Fx.Ink * (0.35f + 0.5f * t), 3f);
 				return false;
 			}
 

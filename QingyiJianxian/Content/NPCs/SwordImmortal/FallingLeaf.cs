@@ -98,7 +98,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			if (!Fired)
 			{
 				float t = (Age - TransformAt) / AimTime;
-				Fx.Line(sb, c, c + aimDir * 260f, Fx.Cinnabar * (0.15f + 0.35f * t), 1f);
+				Fx.SwordIntent(sb, c + aimDir * 16f, aimDir, 120f + 100f * t, 4f, 0.2f + 0.5f * t, Projectile.identity * 17);
 			}
 			else
 			{

@@ -81,7 +81,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			if (!Falling && Age > DropAt - WarnTime)
 			{
 				float t = (Age - (DropAt - WarnTime)) / WarnTime;
-				Fx.Line(sb, Projectile.Center, Projectile.Center + Vector2.UnitY * 1100f, Fx.Cinnabar * (0.15f + 0.55f * t), 1f + t * 2f);
+				Fx.SwordIntent(sb, Projectile.Center + Vector2.UnitY * 30f, Vector2.UnitY, 220f + 280f * t, 8f, 0.2f + 0.7f * t, Projectile.identity * 17);
 			}
 			if (Falling)
 			{

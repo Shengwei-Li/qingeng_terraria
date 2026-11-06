@@ -10,7 +10,7 @@ using Terraria.ModLoader;
 namespace QingyiJianxian.Content.NPCs.SwordImmortal
 {
 	/// <summary>
-	/// 剑气纵横 / Sword-Will Unbound: 一道贯穿整个领域的剑气。先闪一线极细的寒光（不画红线，三阶段的规矩），
+	/// 剑气纵横 / Sword-Will Unbound: 一道贯穿整个领域的剑气。先闪一线极细的寒光（没有剑意预警，三阶段的规矩），
 	/// 片刻后整条斩下，只在斩下的那几帧有伤害。
 	/// Center = 这一刀经过的点；ai[0] = 刀的角度。
 	/// </summary>

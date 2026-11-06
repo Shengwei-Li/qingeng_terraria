@@ -61,10 +61,12 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			Vector2 c = Projectile.Center;
 			if (Age < BurstAt)
 			{
-				// 墨点：小而浓；红圈从外向内收拢，收到墨点时爆开
+				// 墨点：小而浓；一圈淡墨从外向内收拢（墨里一缕青光，暗处也看得见），收到墨点时爆开
 				float t = Age / BurstAt;
+				float d = MathHelper.Lerp(Radius * 2f, 18f, t);
 				Fx.Circle(sb, Fx.Disc.Value, c, 14f, Fx.Ink * 0.9f);
-				Fx.Circle(sb, Fx.Ring.Value, c, MathHelper.Lerp(Radius * 2f, 18f, t), Fx.Cinnabar * (0.25f + 0.5f * t));
+				Fx.Circle(sb, Fx.Ring.Value, c, d, Fx.Ink * (0.2f + 0.45f * t));
+				Fx.Circle(sb, Fx.Ring.Value, c, d * 0.97f, Fx.PaleTeal * (0.1f + 0.25f * t));
 			}
 			else
 			{

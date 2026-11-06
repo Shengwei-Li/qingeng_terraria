@@ -117,11 +117,16 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 				float t = (Age - (LaunchAt - WarnTime)) / WarnTime;
 				bool locked = Age >= LaunchAt - AimFreeze;
 				int tier = SwordImmortal.TelegraphTier(Main.npc[(int)Projectile.ai[0]]);
-				// 锁定瞬间剑尖寒光一闪（各阶段都有）；红线按阶段递减，见 SwordImmortal.TelegraphTier
+				// 锁定瞬间剑尖寒光一闪（各阶段都有）；剑意预警按阶段递减，见 SwordImmortal.TelegraphTier
 				if (locked && Age < LaunchAt - AimFreeze + 6)
 					SwordImmortal.Glint(sb, Projectile.Center + aimDir * 30f, 0.7f);
 				if (tier == 0 || (tier == 1 && !locked))
-					Fx.Line(sb, Projectile.Center, Projectile.Center + aimDir * 1400f, Fx.Cinnabar * (locked ? 0.9f : 0.25f + t * 0.4f), locked ? 3f : 1.5f);
+				{
+					Vector2 tip = Projectile.Center + aimDir * 24f;
+					Fx.SwordIntent(sb, tip, aimDir, 260f + 260f * t, 6f, locked ? 0.8f : 0.2f + 0.6f * t, Projectile.identity * 17);
+					if (locked)
+						Fx.SwordIntentFlash(sb, tip, aimDir, 600f, (Age - (LaunchAt - AimFreeze)) / 6f);
+				}
 			}
 
 			if (Launched)
