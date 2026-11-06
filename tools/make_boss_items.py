@@ -46,87 +46,21 @@ relic.thumbnail((48, 48), Image.Resampling.NEAREST)
 relic.save(ITEMS / "SwordImmortalRelic.png")
 tile_sheet(relic, 3, 3).save(TILES / "SwordImmortalRelicTile.png")
 
-# ── 斗笠：竹编斗笠，帽檐垂一圈淡青纱，遮住大半张脸，只露下巴。玩家自己的头照常画，斗笠盖在上面 ──
-# 头部位置量自 ExampleMod 的兜帽模板：普通帧头在 x 8-30、y 10-30；第 7-9、14-16 帧上移 2 像素
-STRAW, STRAW_D, STRAW_HI, OUT = (196, 166, 108), (138, 106, 66), (228, 206, 152), (40, 30, 22)
-TEAL, TEAL_D = (108, 171, 152), (44, 102, 97)
-VEIL = (200, 236, 228)
+# ── 斗笠：PixelLab 生成的斗笠（斜戴、垂纱），图标原样用；戴在头上的 20 帧就是同一张图按头的位置摆上去 ──
+# 头部位置量自 ExampleMod 的兜帽模板：普通帧头顶在 y 10；第 7-9、14-16 帧上移 2 像素（走路时头一起一伏）
+# 摆法：斗笠的尖在头顶上方，帽檐压在眉上，纱垂到下巴上方；横向居中在头上（人物朝右）
 BOB = {7, 8, 9, 14, 15, 16}
-
-
-def draw_hat(px, cx, top, w, h, veil_rows, sway=0):
-    """在 px 上画一顶斗笠：顶点 (cx, top)，帽檐半宽 w、高 h；veil_rows 行纱。"""
-    brim = top + h
-    for y in range(top, brim + 1):
-        k = (y - top) / h
-        half = max(0, round(w * k ** 0.85))
-        for x in range(cx - half, cx + half + 1):
-            # 竹篾：从顶点放射的细纹，越往外越密
-            rad = (x - cx) / max(half, 1)
-            stripe = round(rad * 5) % 2 == 0
-            c = STRAW_HI if (y - top) < 2 and x <= cx else (STRAW if stripe else STRAW_D)
-            px[x, y] = c + (255,)
-    # 帽檐边一道深色，帽顶一圈青带
-    for x in range(cx - w, cx + w + 1):
-        px[x, brim] = STRAW_D + (255,)
-    band = top + max(2, h // 3)
-    bh = round(w * ((band - top) / h) ** 0.85)
-    for x in range(cx - bh, cx + bh + 1):
-        px[x, band] = TEAL + (255,)
-    # 淡青纱：从帽檐内侧垂下，略向外张；下摆起伏不齐，越往下越淡；走路时末梢顺着一侧轻飘
-    for i in range(veil_rows):
-        y = brim + 1 + i
-        flare = round(i * 0.12)
-        drift = round(sway * i / veil_rows)
-        for xx in range(cx - w + 2 - flare + drift, cx + w - 1 + flare + drift):
-            x = xx - drift
-            u = (x - cx) / w
-            hem = veil_rows - round(1.5 * abs(u)) + round(math.sin(x * 1.7) * 1.2)
-            if i >= hem:
-                continue
-            fade = 1 - i / (veil_rows + 2)
-            a = int((150 if (x % 3) else 190) * (0.45 + 0.55 * fade))
-            if 0 <= xx < len_x(px) and 0 <= y < len_y(px) and px[xx, y][3] < a:
-                px[xx, y] = VEIL + (a,)
-
-
-SIZES = {}
-
-
-def len_x(px):
-    return SIZES[id(px)][0]
-
-
-def len_y(px):
-    return SIZES[id(px)][1]
-
-
-def outline(img):
-    src = img.copy(); sp = src.load(); px = img.load()
-    for y in range(img.height):
-        for x in range(img.width):
-            if sp[x, y][3] == 0 and any(0 <= x + dx < img.width and 0 <= y + dy < img.height and sp[x + dx, y + dy][3] >= 255
-                                        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-                px[x, y] = OUT + (255,)
-
-
+douli = Image.open(ART / "斗笠.png").convert("RGBA")
+douli.save(ITEMS / "Armor" / "SwordImmortalHat.png")
 hat = Image.new("RGBA", (40, 56 * 20), (0, 0, 0, 0))
 for f in range(20):
-    frame = Image.new("RGBA", (40, 56), (0, 0, 0, 0))
     top = 10 - (2 if f in BOB else 0)
-    sway = round(math.sin(f * 1.1)) if f >= 6 else 0
-    # 头顶在 top 附近，斗笠顶点高出 6 像素，帽檐压到眉上；纱垂到鼻下，下巴露出来
-    fp = frame.load(); SIZES[id(fp)] = frame.size
-    draw_hat(fp, 20, top - 7, 15, 8, 14, sway)
-    outline(frame)
+    frame = Image.new("RGBA", (40, 56), (0, 0, 0, 0))
+    oy = top - 13  # 斗笠图上第 5 行是尖，落在头顶上方约 8 像素
+    # alpha_composite 不能贴负坐标：负的部分改为从源图里裁掉（那几行本就是空的）
+    frame.alpha_composite(douli, (4, max(oy, 0)), (0, max(-oy, 0)))
     hat.alpha_composite(frame, (0, 56 * f))
 hat.save(ITEMS / "Armor" / "SwordImmortalHat_Head.png")
-# 图标：同样的斗笠，画大一号
-icon_hat = Image.new("RGBA", (32, 28), (0, 0, 0, 0))
-ip = icon_hat.load(); SIZES[id(ip)] = icon_hat.size
-draw_hat(ip, 16, 1, 14, 9, 15)
-outline(icon_hat)
-icon_hat.save(ITEMS / "Armor" / "SwordImmortalHat.png")
 
 # 清流剑符：PixelLab 生成，原尺寸
 Image.open(ART / "清流剑符.png").convert("RGBA").save(ITEMS / "LingeringStreamTalisman.png")
