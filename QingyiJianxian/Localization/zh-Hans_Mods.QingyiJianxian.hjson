@@ -110,7 +110,7 @@ Items: {
 		DisplayName: 清流剑符
 		Tooltip:
 			'''
-			点哪里，天上落下一道剑气斩过那里，一笔最多斩八个敌人
+			朝鼠标一侧水平碾出一道剑河，鼠标高低决定走哪一层；一道最多斩十二个敌人
 			剑仙留在符纸上的一缕剑意，用一张少一张
 			'''
 	}
@@ -151,7 +151,8 @@ Projectiles: {
 	ClearmoonQi.DisplayName: 清月剑气
 	ClearmoonScar.DisplayName: 斩痕
 	ClearmoonFlight.DisplayName: 清月剑
-	TalismanStroke.DisplayName: 清流剑气
+	TalismanRiver.DisplayName: 清流剑河
+	QiBloom.DisplayName: 墨晕
 	GuardSword.DisplayName: 罡气护体
 }
 

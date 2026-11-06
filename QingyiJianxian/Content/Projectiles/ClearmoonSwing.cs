@@ -163,11 +163,19 @@ namespace QingyiJianxian.Content.Projectiles
 				released = true;
 				if (Projectile.owner == Main.myPlayer)
 				{
-					Vector2 v = aimDir * (Thrust ? 26f : 20f);
+					Vector2 v = aimDir * (Thrust ? 28f : 22f);
 					Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + aimDir * 40f, v,
 						ModContent.ProjectileType<ClearmoonQi>(), (int)(Projectile.damage * (Thrust ? 0.8f : 0.5f)), Projectile.knockBack * 0.5f,
 						Projectile.owner, Thrust ? 1f : 0f, Dir * (Step == 0 ? 1f : -1f));
 				}
+			}
+			// 剑尖扫过的地方洒下光屑、照亮四周
+			if (Cutting && !Main.dedServ)
+			{
+				Vector2 tipPos = Projectile.Center + angle.ToRotationVector2() * BladeLength * Scale * reach;
+				Lighting.AddLight(tipPos, 0.25f, 0.45f, 0.42f);
+				if (Main.rand.NextBool(2))
+					Fx.Mote(tipPos, (angle + Dir * MathHelper.PiOver2).ToRotationVector2() * 1.5f - Vector2.UnitY * 0.5f, Main.rand.NextFloat(0.5f, 0.8f));
 			}
 			Age++;
 		}
@@ -247,8 +255,13 @@ namespace QingyiJianxian.Content.Projectiles
 				mid[i] = Projectile.Center + d * L * r * 0.62f;
 				tip[i] = Projectile.Center + d * L * r * 0.97f;
 			}
-			Trail.Draw(mid, p => L * 0.62f * (1f - 0.5f * p), p => Fx.Teal * (0.35f * life * (1f - p)), Trail.Glow.Value, additive: true);
-			Trail.Draw(tip, p => 9f * (1f - p), p => Color.White * (0.85f * life * (1f - p)), Trail.Glow.Value, additive: true);
+			float time = Main.GlobalTimeWrappedHourly;
+			// 外层：流动的青气，铺满剑身中段到剑尖
+			Trail.Draw(mid, p => L * 0.7f * (1f - 0.55f * p), p => Fx.Teal * (0.55f * life * (1f - p)), Trail.Qi.Value, additive: true, uRepeat: 1.4f, uScroll: time * 3f);
+			// 中层：淡青光晕
+			Trail.Draw(mid, p => L * 0.45f * (1f - 0.6f * p), p => Fx.PaleTeal * (0.25f * life * (1f - p)), Trail.Glow.Value, additive: true);
+			// 剑尖一线白玉
+			Trail.Draw(tip, p => 9f * (1f - p) + 1f, p => Fx.Jade * (0.9f * life * (1f - p)), Trail.Glow.Value, additive: true);
 		}
 
 		/// <summary>前刺：剑身前后一道细长的光。</summary>

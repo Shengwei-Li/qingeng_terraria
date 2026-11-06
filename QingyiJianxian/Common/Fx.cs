@@ -13,6 +13,34 @@ namespace QingyiJianxian.Common
 		public static readonly Color Ink = new(18, 22, 30);
 		public static readonly Color Teal = new(74, 167, 166);
 		public static readonly Color PaleTeal = new(170, 236, 228);
+		// 白玉：偏暖的白，比纯白温润。剑气的芯、剑河的浪尖
+		public static readonly Color Jade = new(236, 250, 238);
+
+		/// <summary>这一点是不是在实心方块里（平台不算）。剑气、剑河用它贴地、撞墙。</summary>
+		public static bool Solid(Vector2 world)
+		{
+			int i = (int)(world.X / 16f), j = (int)(world.Y / 16f);
+			return WorldGen.InWorld(i, j, 1) && WorldGen.SolidTile(i, j);
+		}
+
+		/// <summary>白玉色的光屑：小、亮、慢慢往上飘散。</summary>
+		public static void Mote(Vector2 at, Vector2 velocity, float scale = 0.8f)
+		{
+			if (Main.dedServ)
+				return;
+			Dust d = Dust.NewDustPerfect(at, Terraria.ID.DustID.TintableDustLighted, velocity, 0, Jade, scale);
+			d.noGravity = true;
+			d.fadeIn = 0.4f;
+		}
+
+		/// <summary>水雾：贴地翻起、撞墙溅开时用。</summary>
+		public static void Mist(Vector2 at, Vector2 velocity, float scale = 1.2f)
+		{
+			if (Main.dedServ)
+				return;
+			Dust d = Dust.NewDustPerfect(at, Terraria.ID.DustID.Cloud, velocity, 170, new Color(220, 240, 236), scale);
+			d.noGravity = true;
+		}
 
 		public static Asset<Texture2D> SoftGlow => ModContent.Request<Texture2D>("QingyiJianxian/Assets/Effects/SoftGlow");
 		public static Asset<Texture2D> SoftGlowLarge => ModContent.Request<Texture2D>("QingyiJianxian/Assets/Effects/SoftGlowLarge");

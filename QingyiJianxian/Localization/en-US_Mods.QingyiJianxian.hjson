@@ -110,7 +110,7 @@ Items: {
 		DisplayName: Talisman of the Lingering Stream
 		Tooltip:
 			'''
-			Where thou pointest, a stroke of sword-qi falleth from the heavens; it cleaveth no more than eight foes
+			Looseth a river of sword-qi that rolleth toward thy cursor, at the height thou pointest; it sweepeth no more than twelve foes
 			A thread of the Immortal's sword-will, left upon paper. Each use spendeth one
 			'''
 	}
@@ -151,7 +151,8 @@ Projectiles: {
 	ClearmoonQi.DisplayName: Clearmoon's Edge
 	ClearmoonScar.DisplayName: Scar of Clearmoon
 	ClearmoonFlight.DisplayName: Clearmoon
-	TalismanStroke.DisplayName: Lingering Stream
+	TalismanRiver.DisplayName: The Lingering Stream
+	QiBloom.DisplayName: Ink Bloom
 	GuardSword.DisplayName: Guarding Qi
 }
 

@@ -16,6 +16,8 @@ namespace QingyiJianxian.Common
 	{
 		public static Asset<Texture2D> Brush => ModContent.Request<Texture2D>("QingyiJianxian/Assets/Effects/BrushStroke");
 		public static Asset<Texture2D> Glow => ModContent.Request<Texture2D>("QingyiJianxian/Assets/Effects/GlowStrip");
+		/// <summary>流动的气纹：横向可无缝平铺的丝缕，配合 uScroll 让气沿着剑气往后流。</summary>
+		public static Asset<Texture2D> Qi => ModContent.Request<Texture2D>("QingyiJianxian/Assets/Effects/QiStrip");
 
 		/// <summary>A projectile's current center plus its cached old centers, head first (needs TrailCacheLength).</summary>
 		public static Vector2[] Centers(Projectile proj, Vector2 offset = default)
@@ -34,8 +36,10 @@ namespace QingyiJianxian.Common
 		/// <param name="width">Full width at a point, given progress 0 (head) .. 1 (tail).</param>
 		/// <param name="color">Color at a point, given progress 0 (head) .. 1 (tail). Premultiplied (use Color * alpha).</param>
 		/// <param name="additive">Additive blending, for glowing trails.</param>
+		/// <param name="uRepeat">How many times the texture repeats along the ribbon (wraps when not 1).</param>
+		/// <param name="uScroll">Offset added to u, for textures that flow along the ribbon over time.</param>
 		/// <remarks>Call from a draw hook while the sprite batch is running; it is ended and restarted around the draw.</remarks>
-		public static void Draw(Vector2[] points, Func<float, float> width, Func<float, Color> color, Texture2D texture, bool additive = false)
+		public static void Draw(Vector2[] points, Func<float, float> width, Func<float, Color> color, Texture2D texture, bool additive = false, float uRepeat = 1f, float uScroll = 0f)
 		{
 			int count = 0;
 			while (count < points.Length && points[count] != Vector2.Zero)
@@ -57,7 +61,7 @@ namespace QingyiJianxian.Common
 				Vector2 normal = new(-dir.Y, dir.X);
 				float half = width(progress) / 2f;
 				Color c = color(progress);
-				float u = 1f - progress;
+				float u = (1f - progress) * uRepeat + uScroll;
 				Vector3 p = new(points[i] - Main.screenPosition, 0f);
 				verts[i * 2] = new VertexPositionColorTexture(p + new Vector3(normal * half, 0f), c, new Vector2(u, 0f));
 				verts[i * 2 + 1] = new VertexPositionColorTexture(p - new Vector3(normal * half, 0f), c, new Vector2(u, 1f));
@@ -75,7 +79,7 @@ namespace QingyiJianxian.Common
 
 			device.BlendState = additive ? BlendState.Additive : BlendState.AlphaBlend;
 			device.RasterizerState = RasterizerState.CullNone;
-			device.SamplerStates[0] = SamplerState.LinearClamp;
+			device.SamplerStates[0] = uRepeat != 1f || uScroll != 0f ? SamplerState.LinearWrap : SamplerState.LinearClamp;
 			device.DepthStencilState = DepthStencilState.None;
 			foreach (EffectPass pass in effect.CurrentTechnique.Passes)
 			{
