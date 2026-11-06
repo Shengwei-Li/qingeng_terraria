@@ -123,15 +123,43 @@ namespace QingyiJianxian.Content.Projectiles
 			count = Math.Max(count, 1);
 		}
 
-		/// <summary>浪头到了第几列（可以是小数）。</summary>
-		private float Front => MathHelper.Min(count - 1, Age / FlowFrames * (Columns - 1));
+		private const float Ease = 1.7f;
 
-		/// <summary>第 i 列的浓淡：浪头刚过时最浓，过了一会儿从起点开始淡去。</summary>
+		/// <summary>浪头到了第几列（可以是小数）。越往前越慢，像水势渐尽。</summary>
+		private float Front
+		{
+			get
+			{
+				float t = MathHelper.Clamp(Age / FlowFrames, 0f, 1f);
+				return MathHelper.Min(count - 1, (1f - MathF.Pow(1f - t, Ease)) * (Columns - 1));
+			}
+		}
+
+		/// <summary>浪头到达第 i 列的时刻（帧）。</summary>
+		private static float ArriveAt(float i)
+		{
+			float u = MathHelper.Clamp(i / (Columns - 1), 0f, 1f);
+			return (1f - MathF.Pow(1f - u, 1f / Ease)) * FlowFrames;
+		}
+
+		/// <summary>
+		/// 尽头自己散：最后三成的路程里，剑河越来越淡、越来越窄，浪头化成水雾——不是截断，也不像撞墙。
+		/// （真撞上墙的时候不散，浪头碎在墙上）
+		/// </summary>
+		private float EndFade(float i)
+		{
+			if (walled)
+				return 1f;
+			float u = MathHelper.Clamp((i / (Columns - 1) - 0.62f) / 0.38f, 0f, 1f);
+			return 1f - u * u * (3f - 2f * u);
+		}
+
+		/// <summary>第 i 列的浓淡：浪头刚过时最浓，过了一会儿从起点开始淡去；越近尽头越淡。</summary>
 		private float ColumnAlpha(float i)
 		{
-			float passed = Age - i / (Columns - 1) * FlowFrames;
+			float passed = Age - ArriveAt(i);
 			float a = 1f - MathHelper.Clamp((passed - 12f) / Linger, 0f, 1f);
-			return passed < 0 ? 0f : a;
+			return passed < 0 ? 0f : a * EndFade(i);
 		}
 
 		public override void AI()
@@ -155,7 +183,19 @@ namespace QingyiJianxian.Content.Projectiles
 					if (a > 0.05f)
 						Lighting.AddLight(new Vector2(X(i), (top[i] + bottom[i]) / 2f), 0.2f * a, 0.38f * a, 0.36f * a);
 				}
-				if (Age < FlowFrames)
+				float ef = EndFade(f);
+				if (!walled && ef < 0.85f && Age < FlowFrames + 14)
+				{
+					for (int k = 0; k < 3; k++)
+					{
+						int j = Math.Max(0, f - Main.rand.Next(10));
+						Vector2 p = new(X(j), MathHelper.Lerp(top[j], bottom[j], Main.rand.NextFloat()));
+						Fx.Mist(p, new Vector2(Dir * Main.rand.NextFloat(0.3f, 1.5f), -Main.rand.NextFloat(0.4f, 1.6f)), 1.4f);
+						if (k == 0)
+							Fx.Mote(p, new Vector2(Dir * Main.rand.NextFloat(0.5f, 2f), -Main.rand.NextFloat(0.5f, 2f)), 0.8f);
+					}
+				}
+				if (Age < FlowFrames && ef > 0.3f)
 				{
 					// 浪头：贴地处翻起水雾，浪尖洒光屑
 					if (floor[f])
@@ -259,6 +299,14 @@ namespace QingyiJianxian.Content.Projectiles
 					: top[i] + 9f + 6f * MathF.Sin(time * 5f - x * 0.018f * Dir) + 3f * MathF.Sin(time * 9f - x * 0.05f * Dir + 1f);
 				dTop[i] = MathF.Min(dTop[i], bottom[i] - 16f);
 			}
+			// 越近尽头越窄：上下沿往中线收拢，最后化成一缕
+			var dBot = new float[count];
+			for (int i = 0; i < count; i++)
+			{
+				float mid = (dTop[i] + bottom[i]) / 2f, k = 0.35f + 0.65f * EndFade(i);
+				dBot[i] = mid + (bottom[i] - mid) * k;
+				dTop[i] = mid - (mid - dTop[i]) * k;
+			}
 
 			// 从浪头往回取点（Trail 要求头在前），每两列一个点
 			int n = f / 2 + 1;
@@ -270,13 +318,15 @@ namespace QingyiJianxian.Content.Projectiles
 			{
 				int i = Math.Max(f - k * 2, 0);
 				colIndex[k] = i;
-				center[k] = new Vector2(X(i), (dTop[i] + bottom[i]) / 2f);
+				center[k] = new Vector2(X(i), (dTop[i] + dBot[i]) / 2f);
 				edgeTop[k] = new Vector2(X(i), dTop[i]);
-				edgeBottom[k] = new Vector2(X(i), bottom[i]);
+				edgeBottom[k] = new Vector2(X(i), dBot[i]);
 			}
 			int Col(float p) => colIndex[Math.Clamp((int)MathF.Round(p * (n - 1)), 0, n - 1)];
-			float Height(float p) { int i = Col(p); return bottom[i] - dTop[i]; }
-			float Alpha(float p) => ColumnAlpha(Col(p));
+			float Height(float p) { int i = Col(p); return (dBot[i] - dTop[i]) * (0.55f + 0.45f * Lead(p)); }
+			float lead = MathHelper.Clamp(70f / MathF.Max(n * 16f, 1f), 0.02f, 0.3f);
+			float Lead(float p) => walled && crashed ? 1f : MathHelper.SmoothStep(0.15f, 1f, MathHelper.Clamp(p / lead, 0f, 1f));
+			float Alpha(float p) => ColumnAlpha(Col(p)) * Lead(p);
 
 			// 上下沿一抹淡墨（不发光，和场景是一层）
 			Trail.Draw(edgeTop, p => 16f, p => Fx.Ink * (0.22f * Alpha(p)), Trail.Glow.Value);
@@ -297,11 +347,11 @@ namespace QingyiJianxian.Content.Projectiles
 				for (int k = 0; k < n; k++)
 				{
 					int i = colIndex[k];
-					float h = bottom[i] - dTop[i];
+					float h = dBot[i] - dTop[i];
 					float wave = MathF.Sin(time * 9f - X(i) * 0.025f * Dir + phase) * h * 0.13f
 						+ MathF.Sin(time * 5f - X(i) * 0.011f * Dir + phase * 2f) * h * 0.07f;
-					float y = MathHelper.Lerp(dTop[i] + 6f, bottom[i] - 6f, frac) + wave;
-					pts[k] = new Vector2(X(i), MathHelper.Clamp(y, dTop[i] + 3f, bottom[i] - 3f));
+					float y = MathHelper.Lerp(dTop[i] + 6f, dBot[i] - 6f, frac) + wave;
+					pts[k] = new Vector2(X(i), MathHelper.Clamp(y, dTop[i] + 3f, dBot[i] - 3f));
 				}
 				bool jade = s % 2 == 0;
 				float w = jade ? 7f : 12f;
@@ -321,7 +371,7 @@ namespace QingyiJianxian.Content.Projectiles
 					continue;
 				float foam = 0.5f + 0.5f * MathF.Sin(time * 12f + i * 0.9f);
 				if (floor[i] && floor[j])
-					Fx.Line(sb, new Vector2(X(i), bottom[i] - 1f), new Vector2(X(j), bottom[j] - 1f), Fx.Jade * (0.85f * a * (0.5f + 0.5f * foam)), 3f + 2f * foam);
+					Fx.Line(sb, new Vector2(X(i), dBot[i] - 1f), new Vector2(X(j), dBot[j] - 1f), Fx.Jade * (0.85f * a * (0.5f + 0.5f * foam)), 3f + 2f * foam);
 				if (ceiling[i] && ceiling[j])
 					Fx.Line(sb, new Vector2(X(i), dTop[i] + 1f), new Vector2(X(j), dTop[j] + 1f), Fx.Jade * (0.4f * a * foam), 2f);
 			}
@@ -339,7 +389,7 @@ namespace QingyiJianxian.Content.Projectiles
 				float a = ColumnAlpha(i) * MathHelper.Clamp((Age - delay) / 4f, 0f, 1f);
 				if (a <= 0.05f || i >= count)
 					continue;
-				float y = MathHelper.Lerp(dTop[i] + 8f, bottom[i] - 8f, Hash(k, 3));
+				float y = MathHelper.Lerp(dTop[i] + 8f, dBot[i] - 8f, Hash(k, 3));
 				Vector2 head = new(X(i), y);
 				Vector2 tail = head - new Vector2(Dir * MathHelper.Lerp(18f, 34f, Hash(k, 4)), 0f);
 				Fx.Line(sb, tail, head, Fx.DeepTeal * (0.7f * a), 5f);
@@ -349,8 +399,8 @@ namespace QingyiJianxian.Content.Projectiles
 			// 浪头：卷起来的一道浪，浪尖一排剑光（流完就散）
 			if (Age < FlowFrames + 8 && !(walled && crashed && Age > FlowFrames))
 			{
-				float fa = 1f - MathHelper.Clamp((Age - FlowFrames) / 8f, 0f, 1f);
-				float xf = X(f), t0 = dTop[f], b0 = bottom[f], h = b0 - t0;
+				float fa = (1f - MathHelper.Clamp((Age - FlowFrames) / 8f, 0f, 1f)) * EndFade(f);
+				float xf = X(f), t0 = dTop[f], b0 = dBot[f], h = b0 - t0;
 				// 浪身：从下往上、往前卷
 				const int m = 12;
 				var curl = new Vector2[m];
