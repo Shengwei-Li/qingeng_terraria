@@ -263,7 +263,9 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			if (projectile.owner < 0 || projectile.owner >= Main.maxPlayers)
 				return;
 			bool clearmoon = projectile.type == ModContent.ProjectileType<Projectiles.ClearmoonSwing>()
-				|| projectile.type == ModContent.ProjectileType<Projectiles.ClearmoonQi>();
+				|| projectile.type == ModContent.ProjectileType<Projectiles.ClearmoonQi>()
+				|| projectile.type == ModContent.ProjectileType<Projectiles.ClearmoonScar>()
+				|| projectile.type == ModContent.ProjectileType<Projectiles.ClearmoonFlight>();
 			RecordHit(Main.player[projectile.owner], damageDone, Swords.IsSwordProjectile(projectile), clearmoon);
 		}
 
@@ -1164,8 +1166,8 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			SoundEngine.PlaySound(SoundID.Item1 with { Pitch = -0.3f }, NPC.Center);
 			if (Main.netMode == NetmodeID.MultiplayerClient)
 				return;
-			// 普通模式：一件件抛出——每次必给云纹绡（织青衫，约两次凑齐）和青云药酒；
-			//   清月剑第一次必给、之后 1/3，剑穗 1/2，御剑诀（坐骑）1/4，面具 1/7。
+			// 普通模式：一件件抛出——每次必给云纹绡（织青衫，约两次凑齐）、青云药酒和清流剑符；
+			//   清月剑第一次必给、之后 1/3，剑穗 1/2，御剑诀（坐骑）1/4，斗笠 1/7。
 			// 专家 / 大师：改为每人一个宝藏袋（联机各拿各的，袋里给得更多），见 SwordImmortalBag。
 			// 不论模式：第一次问剑，清月剑和一壶酒由剑仙亲手抛出（赠剑是剧情）；纪念杯 1/10；大师模式再给遗物。
 			bool first = !WorldFlags.DownedSwordImmortal;
@@ -1180,6 +1182,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 			{
 				gifts.Add((ModContent.ItemType<Items.CloudweaveSilk>(), Main.rand.Next(10, 13)));
 				gifts.Add((ModContent.ItemType<Items.AzureCloudDraught>(), Main.rand.Next(5, 9)));
+				gifts.Add((ModContent.ItemType<Items.LingeringStreamTalisman>(), Main.rand.Next(8, 13)));
 				if (first || Main.rand.NextBool(3))
 					gifts.Add((ModContent.ItemType<Items.Clearmoon>(), 1));
 				if (Main.rand.NextBool(2))
@@ -1187,7 +1190,7 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 				if (Main.rand.NextBool(4))
 					gifts.Add((ModContent.ItemType<Items.LitanyOfSwordflight>(), 1));
 				if (Main.rand.NextBool(7))
-					gifts.Add((ModContent.ItemType<Items.Armor.SwordImmortalMask>(), 1));
+					gifts.Add((ModContent.ItemType<Items.Armor.SwordImmortalHat>(), 1));
 			}
 			if (first)
 				gifts.Add((ModContent.ItemType<Items.CloudbrewGourd>(), 1));

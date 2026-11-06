@@ -48,9 +48,9 @@ Items: {
 		// Tooltip: ""
 	}
 
-	SwordImmortalMask: {
-		DisplayName: 青衣剑仙面具
-		// Tooltip: ""
+	SwordImmortalHat: {
+		DisplayName: 青衣剑仙的斗笠
+		Tooltip: 一圈淡青纱，叫人看不清你的脸
 	}
 
 	CloudweaveSilk: {
@@ -106,11 +106,21 @@ Items: {
 		Tooltip: 念一句口诀，脚下生云
 	}
 
+	LingeringStreamTalisman: {
+		DisplayName: 清流剑符
+		Tooltip:
+			'''
+			点哪里，天上落下一道剑气斩过那里，一笔最多斩八个敌人
+			剑仙留在符纸上的一缕剑意，用一张少一张
+			'''
+	}
+
 	Clearmoon: {
 		DisplayName: 清月剑
 		Tooltip:
 			'''
-			三段连斩：上挑、下劈、旋身一斩并甩出月牙剑气
+			三段连斩：横扫、回撩各甩出一线剑气；前刺刺出长剑气，刺中的敌人片刻后再绽开一道斩痕
+			右键御剑：剑脱手飞去，连斩三剑再飞回手中
 			剑仙所赠。清辉一线，锋不染尘
 			'''
 	}
@@ -139,6 +149,9 @@ Projectiles: {
 	CrossCut.DisplayName: 剑气纵横
 	ClearmoonSwing.DisplayName: 清月剑
 	ClearmoonQi.DisplayName: 清月剑气
+	ClearmoonScar.DisplayName: 斩痕
+	ClearmoonFlight.DisplayName: 清月剑
+	TalismanStroke.DisplayName: 清流剑气
 	GuardSword.DisplayName: 罡气护体
 }
 

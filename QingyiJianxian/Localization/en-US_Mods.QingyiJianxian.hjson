@@ -48,9 +48,9 @@ Items: {
 		Tooltip: ""
 	}
 
-	SwordImmortalMask: {
-		DisplayName: Azure-Clad Sword Immortal Mask
-		Tooltip: ""
+	SwordImmortalHat: {
+		DisplayName: The Immortal's Bamboo Hat
+		Tooltip: A veil of pale gauze, that none may read thy face
 	}
 
 	CloudweaveSilk: {
@@ -106,11 +106,21 @@ Items: {
 		Tooltip: Speak the words, and a cloud riseth beneath thy feet
 	}
 
+	LingeringStreamTalisman: {
+		DisplayName: Talisman of the Lingering Stream
+		Tooltip:
+			'''
+			Where thou pointest, a stroke of sword-qi falleth from the heavens; it cleaveth no more than eight foes
+			A thread of the Immortal's sword-will, left upon paper. Each use spendeth one
+			'''
+	}
+
 	Clearmoon: {
 		DisplayName: Clearmoon
 		Tooltip:
 			'''
-			A three-stroke chain: a rising cut, a falling cut, and a whirling stroke that casteth a crescent of light
+			A three-stroke chain: a sweep and a rising cut each cast a line of sword-qi; a thrust casteth a long one, and where it pierceth, a scar of light bloometh a breath later
+			Right-click to loose the blade: it flieth forth, cutteth thrice, and returneth to thy hand
 			A gift of the Immortal. A single line of moonlight; its edge taketh no dust
 			'''
 	}
@@ -138,7 +148,10 @@ Projectiles: {
 	WineBlade.DisplayName: Drunken Blades
 	CrossCut.DisplayName: Sword-Will Unbound
 	ClearmoonSwing.DisplayName: Clearmoon
-	ClearmoonQi.DisplayName: Crescent of Clearmoon
+	ClearmoonQi.DisplayName: Clearmoon's Edge
+	ClearmoonScar.DisplayName: Scar of Clearmoon
+	ClearmoonFlight.DisplayName: Clearmoon
+	TalismanStroke.DisplayName: Lingering Stream
 	GuardSword.DisplayName: Guarding Qi
 }
 

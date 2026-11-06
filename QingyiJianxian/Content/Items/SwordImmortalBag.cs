@@ -35,10 +35,11 @@ namespace QingyiJianxian.Content.Items
 		{
 			itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<CloudweaveSilk>(), 1, 12, 15));
 			itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<AzureCloudDraught>(), 1, 6, 9));
+			itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<LingeringStreamTalisman>(), 1, 10, 15));
 			itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<Clearmoon>(), 3));
 			itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<InkwakeTassel>(), 2));
 			itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<LitanyOfSwordflight>(), 4));
-			itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<SwordImmortalMask>(), 7));
+			itemLoot.Add(ItemDropRule.Common(ModContent.ItemType<SwordImmortalHat>(), 7));
 			itemLoot.Add(ItemDropRule.CoinsBasedOnNPCValue(ModContent.NPCType<SwordImmortal>()));
 		}
 	}

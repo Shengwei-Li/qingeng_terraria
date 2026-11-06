@@ -55,6 +55,8 @@ namespace QingyiJianxian.Common
 		private bool GuardActive => WayfarerSet && Crown;
 		public int ComboStep;
 		public int ComboTimer;
+		// 清月剑右键御剑：剑飞回手里之后的冷却
+		public int FlightCooldown;
 
 		// 剑意：剑类命中叠层，每层剑类伤害 +4%、攻速 +3%，最多 5 层；三秒不出剑就散
 		public const int MaxWill = 5;
@@ -125,6 +127,8 @@ namespace QingyiJianxian.Common
 			// 停手一秒，连招从头开始
 			if (ComboTimer > 0 && --ComboTimer == 0)
 				ComboStep = 0;
+			if (FlightCooldown > 0)
+				FlightCooldown--;
 
 			if (guardTimer > 0)
 				guardTimer--;

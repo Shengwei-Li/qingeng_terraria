@@ -18,6 +18,10 @@ ITEMS = {
               "long flowing teal silk fringe, a small red knot above the bead, single object centered",
     "litany": "pixel art item icon, an ancient chinese bamboo slip scroll half unrolled, pale bamboo strips bound by teal cord, "
               "a small glowing silver sword emblem on it, faint cyan magical glow, single object centered",
+    "hat": "pixel art item icon, a wide conical chinese bamboo straw hat (douli), woven straw texture, warm tan, "
+           "a teal ribbon around the crown, a sheer pale teal gauze veil hanging from the brim, single object centered",
+    "talisman": "pixel art item icon, a vertical taoist paper talisman, pale yellow paper, a flowing teal ink sword "
+                "brush stroke drawn on it, a small red seal stamp at the bottom, slight cyan glow, single object centered",
 }
 
 out = Path(sys.argv[1]); out.mkdir(parents=True, exist_ok=True)

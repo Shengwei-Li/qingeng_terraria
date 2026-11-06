@@ -1,4 +1,4 @@
-"""Boss 标配物品的贴图：宝藏袋、纪念杯（墙挂 3×3）、遗物（落地 3×3）、面具（头部 20 帧），以及模组图标和创意工坊封面。
+"""Boss 标配物品的贴图：宝藏袋、纪念杯（墙挂 3×3）、遗物（落地 3×3）、斗笠（头部 20 帧）、清流剑符，以及模组图标和创意工坊封面。
 
 素材来自 design_image/定稿（PixelLab 挑出的图）和玩家生成的法相图。
 usage: python make_boss_items.py
@@ -46,75 +46,90 @@ relic.thumbnail((48, 48), Image.Resampling.NEAREST)
 relic.save(ITEMS / "SwordImmortalRelic.png")
 tile_sheet(relic, 3, 3).save(TILES / "SwordImmortalRelicTile.png")
 
-# ── 面具：像原版 Boss 面具一样画整个头——剑仙的脸（眉、眼、嘴）和发型（黑发高髻、青发带、脑后长发），20 帧，人物朝右 ──
-# 物品里关掉了玩家自己的头（DrawHead = false），脸全由这里画
+# ── 斗笠：竹编斗笠，帽檐垂一圈淡青纱，遮住大半张脸，只露下巴。玩家自己的头照常画，斗笠盖在上面 ──
 # 头部位置量自 ExampleMod 的兜帽模板：普通帧头在 x 8-30、y 10-30；第 7-9、14-16 帧上移 2 像素
-hood = Image.open(ROOT / "tools" / "armor_templates" / "ExampleHood_Head.png").convert("RGBA")
-HAIR, HAIR_HI, OUT = (30, 32, 40), (64, 70, 86), (14, 14, 18)
+STRAW, STRAW_D, STRAW_HI, OUT = (196, 166, 108), (138, 106, 66), (228, 206, 152), (40, 30, 22)
 TEAL, TEAL_D = (108, 171, 152), (44, 102, 97)
-SKIN, SKIN_D = (242, 210, 178), (212, 166, 138)
-BROW, EYE_DARK, EYE_WHITE, LIP = (34, 30, 34), (30, 52, 60), (236, 240, 240), (196, 130, 116)
+VEIL = (200, 236, 228)
 BOB = {7, 8, 9, 14, 15, 16}
-mask = Image.new("RGBA", (40, 56 * 20), (0, 0, 0, 0))
+
+
+def draw_hat(px, cx, top, w, h, veil_rows, sway=0):
+    """在 px 上画一顶斗笠：顶点 (cx, top)，帽檐半宽 w、高 h；veil_rows 行纱。"""
+    brim = top + h
+    for y in range(top, brim + 1):
+        k = (y - top) / h
+        half = max(0, round(w * k ** 0.85))
+        for x in range(cx - half, cx + half + 1):
+            # 竹篾：从顶点放射的细纹，越往外越密
+            rad = (x - cx) / max(half, 1)
+            stripe = round(rad * 5) % 2 == 0
+            c = STRAW_HI if (y - top) < 2 and x <= cx else (STRAW if stripe else STRAW_D)
+            px[x, y] = c + (255,)
+    # 帽檐边一道深色，帽顶一圈青带
+    for x in range(cx - w, cx + w + 1):
+        px[x, brim] = STRAW_D + (255,)
+    band = top + max(2, h // 3)
+    bh = round(w * ((band - top) / h) ** 0.85)
+    for x in range(cx - bh, cx + bh + 1):
+        px[x, band] = TEAL + (255,)
+    # 淡青纱：从帽檐内侧垂下，略向外张；下摆起伏不齐，越往下越淡；走路时末梢顺着一侧轻飘
+    for i in range(veil_rows):
+        y = brim + 1 + i
+        flare = round(i * 0.12)
+        drift = round(sway * i / veil_rows)
+        for xx in range(cx - w + 2 - flare + drift, cx + w - 1 + flare + drift):
+            x = xx - drift
+            u = (x - cx) / w
+            hem = veil_rows - round(1.5 * abs(u)) + round(math.sin(x * 1.7) * 1.2)
+            if i >= hem:
+                continue
+            fade = 1 - i / (veil_rows + 2)
+            a = int((150 if (x % 3) else 190) * (0.45 + 0.55 * fade))
+            if 0 <= xx < len_x(px) and 0 <= y < len_y(px) and px[xx, y][3] < a:
+                px[xx, y] = VEIL + (a,)
+
+
+SIZES = {}
+
+
+def len_x(px):
+    return SIZES[id(px)][0]
+
+
+def len_y(px):
+    return SIZES[id(px)][1]
+
+
+def outline(img):
+    src = img.copy(); sp = src.load(); px = img.load()
+    for y in range(img.height):
+        for x in range(img.width):
+            if sp[x, y][3] == 0 and any(0 <= x + dx < img.width and 0 <= y + dy < img.height and sp[x + dx, y + dy][3] >= 255
+                                        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                px[x, y] = OUT + (255,)
+
+
+hat = Image.new("RGBA", (40, 56 * 20), (0, 0, 0, 0))
 for f in range(20):
     frame = Image.new("RGBA", (40, 56), (0, 0, 0, 0))
-    px = frame.load()
-    hp = hood.crop((0, 56 * f, 40, 56 * f + 56)).load()
     top = 10 - (2 if f in BOB else 0)
-    # 头发：兜帽轮廓里，头顶（前几行）和脑后（偏左的部分）涂成黑发，脸（右下）留空
-    for y in range(56):
-        for x in range(40):
-            if hp[x, y][3] == 0:
-                continue
-            on_top = y < top + 5
-            on_back = x < 22
-            if on_top or on_back:
-                px[x, y] = (HAIR_HI if (x + y) % 7 == 0 else HAIR) + (255,)
-            else:
-                # 脸：靠后脑一侧和下巴略暗
-                shade = x <= 23 or y >= top + 18
-                px[x, y] = (SKIN_D if shade else SKIN) + (255,)
-    # 五官（朝右）：剑眉、一只眼（眼白 + 深青瞳）、淡淡的嘴
-    ey = top + 10
-    for x in range(24, 29):
-        px[x, ey - 2] = BROW + (255,)
-    px[25, ey] = EYE_WHITE + (255,)
-    px[26, ey] = EYE_DARK + (255,)
-    px[26, ey - 1] = EYE_DARK + (255,)
-    px[27, ey + 5] = LIP + (255,)
-    px[26, ey + 5] = LIP + (255,)
-    # 脑后长发垂到肩下，末梢随走路轻摆
     sway = round(math.sin(f * 1.1)) if f >= 6 else 0
-    for i in range(14):
-        y = top + 16 + i
-        x0 = 8 - (i // 5) + (sway if i > 8 else 0)
-        for x in range(x0, x0 + 5):
-            if 0 <= x < 40 and 0 <= y < 56:
-                px[x, y] = HAIR + (255,)
-    # 高髻和青发带
-    cx = 19
-    for y in range(top - 6, top):
-        w = 3 if y < top - 4 else 4
-        for x in range(cx - w + 1, cx + w):
-            px[x, y] = HAIR + (255,)
-    for x in range(cx - 4, cx + 4):
-        px[x, top - 1] = TEAL + (255,)
-    for i in range(8):  # 发带垂在脑后
-        x, y = cx - 4 - i // 2, top - 1 + i
-        px[x, y] = (TEAL if i % 3 else TEAL_D) + (255,)
-    # 外轮廓描边
-    src = frame.copy(); sp = src.load()
-    for y in range(56):
-        for x in range(40):
-            if sp[x, y][3] == 0 and any(0 <= x + dx < 40 and 0 <= y + dy < 56 and sp[x + dx, y + dy][3]
-                                        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-                if sp[x - 1 if x > 0 else x, y][:3] != (0, 0, 0) or True:
-                    px[x, y] = OUT + (255,)
-    mask.alpha_composite(frame, (0, 56 * f))
-mask.save(ITEMS / "Armor" / "SwordImmortalMask_Head.png")
-# 面具图标：用 Boss 头像
-head = Image.open(MOD / "Content" / "NPCs" / "SwordImmortal" / "SwordImmortal_Head_Boss.png").convert("RGBA")
-head.save(ITEMS / "Armor" / "SwordImmortalMask.png")
+    # 头顶在 top 附近，斗笠顶点高出 6 像素，帽檐压到眉上；纱垂到鼻下，下巴露出来
+    fp = frame.load(); SIZES[id(fp)] = frame.size
+    draw_hat(fp, 20, top - 7, 15, 8, 14, sway)
+    outline(frame)
+    hat.alpha_composite(frame, (0, 56 * f))
+hat.save(ITEMS / "Armor" / "SwordImmortalHat_Head.png")
+# 图标：同样的斗笠，画大一号
+icon_hat = Image.new("RGBA", (32, 28), (0, 0, 0, 0))
+ip = icon_hat.load(); SIZES[id(ip)] = icon_hat.size
+draw_hat(ip, 16, 1, 14, 9, 15)
+outline(icon_hat)
+icon_hat.save(ITEMS / "Armor" / "SwordImmortalHat.png")
+
+# 清流剑符：PixelLab 生成，原尺寸
+Image.open(ART / "清流剑符.png").convert("RGBA").save(ITEMS / "LingeringStreamTalisman.png")
 
 # ── 模组图标（80×80）和创意工坊封面（512×512）：取自法相图的脸和剑 ──
 src = Image.open(ROOT / "design_image" / "Stoic Swordsman Amidst Pixel Clouds.png").convert("RGB")
@@ -122,4 +137,4 @@ icon = src.crop((740, 150, 1080, 490)).resize((80, 80), Image.Resampling.LANCZOS
 icon.save(MOD / "icon.png")
 cover = src.crop((476, 0, 1417, 941)).resize((512, 512), Image.Resampling.LANCZOS)
 cover.save(MOD / "icon_workshop.png")
-print("boss items, mask, icons written")
+print("boss items, hat, talisman, icons written")

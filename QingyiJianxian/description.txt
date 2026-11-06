@@ -20,9 +20,10 @@
   · 拿他赠的清月剑去打他？他会把剑夺走，换成双剑
 
 ■ 装备
-  · 清月剑（三段连斩，月牙剑气）、剑穗、青云药酒、御剑诀（云坐骑）
+  · 清月剑（横扫、回撩、前刺，右键御剑）、剑穗、青云药酒、御剑诀（云坐骑）
+  · 清流剑符：点哪里斩哪里的一道剑气，用一张少一张，不分职业
   · 青衫套装：用他留下的云纹绡织成，踏云冲刺、剑意叠层、罡气护体
-  · 专家宝藏袋、纪念杯、大师遗物、面具
+  · 专家宝藏袋、纪念杯、大师遗物、斗笠
 
 当前为测试版（0.5.1），配乐暂用原版曲目。问题与建议：https://github.com/Shengwei-Li/qingeng_terraria
 
@@ -48,8 +49,9 @@ He cannot be slain: this is a questioning of blades, not a killing. Receive his 
   · Dare to strike him with the very blade he gave thee? He takes it back, and fights with two
 
 ■ Gear
-  · Clearmoon, the Inkwake Tassel, Azure Cloud Draught, the Litany of Swordflight (a cloud mount)
+  · Clearmoon (sweep, rising cut, thrust; right-click to loose the blade), the Inkwake Tassel, Azure Cloud Draught, the Litany of Swordflight (a cloud mount)
+  · Talisman of the Lingering Stream: a stroke of sword-qi wherever thou pointest, for any class
   · The Azure Wayfarer set, woven from the Cloudweave Silk he leaves behind
-  · Treasure bag, trophy, relic and mask
+  · Treasure bag, trophy, relic and bamboo hat
 
 Beta (0.5.1); vanilla music is used for now. Feedback: https://github.com/Shengwei-Li/qingeng_terraria
