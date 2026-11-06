@@ -15,6 +15,8 @@ namespace QingyiJianxian.Common
 		public static readonly Color PaleTeal = new(170, 236, 228);
 		// 白玉：偏暖的白，比纯白温润。剑气的芯、剑河的浪尖
 		public static readonly Color Jade = new(236, 250, 238);
+		// 深青：剑气、剑河的"身子"。用普通混合（不是发光叠加）画，白天亮背景上也有颜色、有分量；发光只留给白玉高光
+		public static readonly Color DeepTeal = new(30, 104, 102);
 
 		/// <summary>这一点是不是在实心方块里（平台不算）。剑气、剑河用它贴地、撞墙。</summary>
 		public static bool Solid(Vector2 world)

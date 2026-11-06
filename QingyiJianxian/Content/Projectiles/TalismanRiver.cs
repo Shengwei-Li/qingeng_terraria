@@ -270,12 +270,14 @@ namespace QingyiJianxian.Content.Projectiles
 			float Alpha(float p) => ColumnAlpha(Col(p));
 
 			// 上下沿一抹淡墨（不发光，和场景是一层）
-			Trail.Draw(edgeTop, p => 12f, p => Fx.Ink * (0.14f * Alpha(p)), Trail.Glow.Value);
-			Trail.Draw(edgeBottom, p => 12f, p => Fx.Ink * (0.14f * Alpha(p)), Trail.Glow.Value);
+			Trail.Draw(edgeTop, p => 16f, p => Fx.Ink * (0.22f * Alpha(p)), Trail.Glow.Value);
+			Trail.Draw(edgeBottom, p => 16f, p => Fx.Ink * (0.22f * Alpha(p)), Trail.Glow.Value);
 
 			// 河身：一层流动的青气，铺满上下边界
-			Trail.Draw(center, p => Height(p) * 1.05f, p => Fx.Teal * (0.42f * Alpha(p)), Trail.Qi.Value, additive: true, uRepeat: n / 10f, uScroll: -time * 2.5f);
-			Trail.Draw(center, p => Height(p) * 0.7f, p => Fx.PaleTeal * (0.14f * Alpha(p)), Trail.Glow.Value, additive: true);
+			// 河身：一层半透明的深青水色（普通混合，白天也有分量），上面一层淡青气纹往前流
+			Trail.Draw(center, p => Height(p) * 1.1f, p => Fx.DeepTeal * (0.45f * Alpha(p)), Trail.Glow.Value);
+			Trail.Draw(center, p => Height(p) * 1.0f, p => Fx.PaleTeal * (0.7f * Alpha(p)), Trail.Qi.Value, uRepeat: n / 10f, uScroll: -time * 2.5f);
+			Trail.Draw(center, p => Height(p) * 0.6f, p => Fx.PaleTeal * (0.12f * Alpha(p)), Trail.Glow.Value, additive: true);
 
 			// 气流：几缕各自翻滚、交缠着往前流
 			for (int s = 0; s < Strands; s++)
@@ -294,8 +296,11 @@ namespace QingyiJianxian.Content.Projectiles
 				}
 				bool jade = s % 2 == 0;
 				float w = jade ? 7f : 12f;
-				Trail.Draw(pts, p => w * (0.5f + 0.5f * Height(p) / (HalfHeight * 2f)) * (0.6f + 0.4f * (1f - p)), p => (jade ? Fx.Jade : Fx.PaleTeal) * ((jade ? 0.55f : 0.35f) * Alpha(p)),
-					jade ? Trail.Glow.Value : Trail.Qi.Value, additive: true, uRepeat: jade ? 1f : n / 12f, uScroll: jade ? 0f : -time * 3.5f + s);
+				float Wd(float p) => w * (0.5f + 0.5f * Height(p) / (HalfHeight * 2f)) * (0.6f + 0.4f * (1f - p));
+				// 每缕先垫一道深青，再画白玉 / 淡青，丝缕有轮廓，不会被亮背景吃掉
+				Trail.Draw(pts, p => Wd(p) + 4f, p => Fx.DeepTeal * (0.35f * Alpha(p)), Trail.Glow.Value);
+				Trail.Draw(pts, Wd, p => (jade ? Fx.Jade : Fx.PaleTeal) * ((jade ? 0.85f : 0.7f) * Alpha(p)),
+					jade ? Trail.Glow.Value : Trail.Qi.Value, uRepeat: jade ? 1f : n / 12f, uScroll: jade ? 0f : -time * 3.5f + s);
 			}
 
 			// 贴地处的白沫：接触线上一道起伏的白
@@ -307,7 +312,7 @@ namespace QingyiJianxian.Content.Projectiles
 					continue;
 				float foam = 0.5f + 0.5f * MathF.Sin(time * 12f + i * 0.9f);
 				if (floor[i] && floor[j])
-					Fx.Line(sb, new Vector2(X(i), bottom[i] - 1f), new Vector2(X(j), bottom[j] - 1f), Fx.Jade * (0.55f * a * (0.5f + 0.5f * foam)), 2f + 2f * foam);
+					Fx.Line(sb, new Vector2(X(i), bottom[i] - 1f), new Vector2(X(j), bottom[j] - 1f), Fx.Jade * (0.85f * a * (0.5f + 0.5f * foam)), 3f + 2f * foam);
 				if (ceiling[i] && ceiling[j])
 					Fx.Line(sb, new Vector2(X(i), top[i] + 1f), new Vector2(X(j), top[j] + 1f), Fx.Jade * (0.4f * a * foam), 2f);
 			}
@@ -328,8 +333,8 @@ namespace QingyiJianxian.Content.Projectiles
 				float y = MathHelper.Lerp(top[i] + 8f, bottom[i] - 8f, Hash(k, 3));
 				Vector2 head = new(X(i), y);
 				Vector2 tail = head - new Vector2(Dir * MathHelper.Lerp(18f, 34f, Hash(k, 4)), 0f);
-				Fx.Line(sb, tail, head, Fx.Teal * (0.5f * a), 5f);
-				Fx.Line(sb, tail, head, Fx.Jade * (0.9f * a), 1.5f);
+				Fx.Line(sb, tail, head, Fx.DeepTeal * (0.7f * a), 5f);
+				Fx.Line(sb, tail, head, Fx.Jade * a, 2f);
 			}
 
 			// 浪头：卷起来的一道浪，浪尖一排剑光（流完就散）
@@ -348,10 +353,13 @@ namespace QingyiJianxian.Content.Projectiles
 					curl[k] = c + new Vector2(Dir * MathF.Cos(ang), -MathF.Sin(ang) * 0.9f) * h * 0.42f * (1f - 0.25f * u)
 						+ new Vector2(0f, u * u * h * 0.35f);
 				}
-				Trail.Draw(curl, p => 18f * (1f - 0.6f * p) * MathF.Min(1f, h / 80f), p => Fx.PaleTeal * (0.55f * fa * (1f - 0.5f * p)), Trail.Qi.Value, additive: true, uRepeat: 1f, uScroll: -time * 4f);
-				Trail.Draw(curl, p => 5f * (1f - 0.7f * p) + 1f, p => Fx.Jade * (0.9f * fa * (1f - 0.6f * p)), Trail.Glow.Value, additive: true);
+				float cw = MathF.Min(1f, h / 80f);
+				Trail.Draw(curl, p => 30f * (1f - 0.6f * p) * cw, p => Fx.DeepTeal * (0.55f * fa * (1f - 0.5f * p)), Trail.Glow.Value);
+				Trail.Draw(curl, p => 26f * (1f - 0.6f * p) * cw, p => Fx.PaleTeal * (0.85f * fa * (1f - 0.5f * p)), Trail.Qi.Value, uRepeat: 1f, uScroll: -time * 4f);
+				Trail.Draw(curl, p => 7f * (1f - 0.7f * p) + 1f, p => Fx.Jade * (fa * (1f - 0.6f * p)), Trail.Glow.Value);
 				// 浪尖一排剑光：竖着的一线白玉，上面几点闪
-				Fx.Line(sb, new Vector2(xf, t0 + 4f), new Vector2(xf, b0 - 4f), Fx.Jade * (0.6f * fa), 3f);
+				Fx.Line(sb, new Vector2(xf, t0 + 4f), new Vector2(xf, b0 - 4f), Fx.DeepTeal * (0.5f * fa), 6f);
+				Fx.Line(sb, new Vector2(xf, t0 + 4f), new Vector2(xf, b0 - 4f), Fx.Jade * (0.9f * fa), 3f);
 				for (int k = 0; k < 4; k++)
 				{
 					float y = MathHelper.Lerp(t0 + 10f, b0 - 10f, (k + Hash((int)Age / 3, k) * 0.6f) / 4f);

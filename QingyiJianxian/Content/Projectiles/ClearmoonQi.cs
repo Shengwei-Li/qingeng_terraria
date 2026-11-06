@@ -150,16 +150,19 @@ namespace QingyiJianxian.Content.Projectiles
 				float Shape(float p) => MathF.Pow(1f - p, 0.7f) * MathF.Sin(MathF.PI * MathF.Min(1f, p * 1.4f + 0.05f)) + 0.08f;
 				Vector2[] head = (Vector2[])pts.Clone();
 				Array.Reverse(head);
-				Trail.Draw(head, p => 34f * Shape(p) * Vis(1f - p), p => Fx.Teal * (0.7f * fade), Trail.Qi.Value, additive: true, uRepeat: 1.6f, uScroll: time * 2.6f);
-				Trail.Draw(head, p => 16f * Shape(p) * Vis(1f - p), p => Fx.PaleTeal * (0.55f * fade), Trail.Glow.Value, additive: true);
-				Trail.Draw(head, p => 5f * Shape(p) * Vis(1f - p) + 1f, p => Fx.Jade * fade, Trail.Glow.Value, additive: true);
+				Trail.Draw(head, p => 40f * Shape(p) * Vis(1f - p), p => Fx.DeepTeal * (0.55f * fade), Trail.Glow.Value);
+				Trail.Draw(head, p => 34f * Shape(p) * Vis(1f - p), p => Fx.PaleTeal * (0.8f * fade), Trail.Qi.Value, uRepeat: 1.6f, uScroll: time * 2.6f);
+				Trail.Draw(head, p => 9f * Shape(p) * Vis(1f - p) + 1f, p => Fx.Jade * fade, Trail.Glow.Value);
+				Trail.Draw(head, p => 6f * Shape(p) * Vis(1f - p) + 1f, p => Fx.Jade * (0.6f * fade), Trail.Glow.Value, additive: true);
 			}
 			else
 			{
 				float Shape(float p) => MathF.Sin(MathF.PI * p);
-				Trail.Draw(pts, p => (30f * Shape(p) + 2f) * Vis(p) * spread, p => Fx.Teal * (0.7f * fade), Trail.Qi.Value, additive: true, uRepeat: 1.2f, uScroll: time * 2.2f);
-				Trail.Draw(pts, p => (14f * Shape(p) + 1f) * Vis(p), p => Fx.PaleTeal * (0.55f * fade), Trail.Glow.Value, additive: true);
-				Trail.Draw(pts, p => (4.5f * Shape(p) + 1f) * Vis(p), p => Fx.Jade * fade, Trail.Glow.Value, additive: true);
+				// 身子：深青（普通混合）；气纹：淡青丝缕流动；芯：白玉；最后叠一层光
+				Trail.Draw(pts, p => (36f * Shape(p) + 2f) * Vis(p) * spread, p => Fx.DeepTeal * (0.55f * fade), Trail.Glow.Value);
+				Trail.Draw(pts, p => (32f * Shape(p) + 2f) * Vis(p) * spread, p => Fx.PaleTeal * (0.85f * fade), Trail.Qi.Value, uRepeat: 1.2f, uScroll: time * 2.2f);
+				Trail.Draw(pts, p => (8f * Shape(p) + 1f) * Vis(p), p => Fx.Jade * fade, Trail.Glow.Value);
+				Trail.Draw(pts, p => (5f * Shape(p) + 1f) * Vis(p), p => Fx.Jade * (0.6f * fade), Trail.Glow.Value, additive: true);
 			}
 			return false;
 		}
@@ -188,8 +191,9 @@ namespace QingyiJianxian.Content.Projectiles
 					float wave = MathF.Sin(time * 14f + k * 0.75f + (s > 0 ? 0f : MathHelper.Pi)) * amp * (0.3f + grow);
 					pts[k] = history[k] + side * (s * anchor * (1f - 0.4f * grow) + (Lance ? s * wave : wave));
 				}
-				Trail.Draw(pts, p => 10f * (1f - p) + 1f, p => Fx.PaleTeal * (0.32f * fade * (1f - p)), Trail.Qi.Value, additive: true, uRepeat: 1f, uScroll: time * 1.5f + s);
-				Trail.Draw(pts, p => 3f * (1f - p) + 0.5f, p => Fx.Jade * (0.35f * fade * (1f - p)), Trail.Glow.Value, additive: true);
+				Trail.Draw(pts, p => 14f * (1f - p) + 1f, p => Fx.DeepTeal * (0.3f * fade * (1f - p)), Trail.Glow.Value);
+				Trail.Draw(pts, p => 12f * (1f - p) + 1f, p => Fx.PaleTeal * (0.6f * fade * (1f - p)), Trail.Qi.Value, uRepeat: 1f, uScroll: time * 1.5f + s);
+				Trail.Draw(pts, p => 3f * (1f - p) + 0.5f, p => Fx.Jade * (0.55f * fade * (1f - p)), Trail.Glow.Value);
 			}
 		}
 	}

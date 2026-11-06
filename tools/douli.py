@@ -20,7 +20,7 @@ TEAL, TEAL_D, TEAL_HI = (96, 176, 164), (50, 116, 110), (160, 222, 208)
 VEIL, VEIL_HI = (206, 236, 232), (236, 252, 248)
 
 
-def draw(size, origin, scale=1.0, tilt=0.21, sway=0.0, veil_front=15, veil_back=11):
+def draw(size, origin, scale=1.0, tilt=0.21, sway=0.0, veil_front=13, veil_back=9):
     """在 size 大小的画布上画斗笠。origin = 帽檐中心（屏幕坐标），sway = 走路摆动（-1..1）。"""
     W, Hc = 15.5 * scale, 9.0 * scale          # 帽檐半宽、帽身高
     rim = 1.3 * scale                          # 帽檐厚
@@ -109,7 +109,7 @@ def draw(size, origin, scale=1.0, tilt=0.21, sway=0.0, veil_front=15, veil_back=
     vp = veil.load()
     cols = sorted(brim_bottom)
     if cols:
-        left, right = cols[0] + 2, cols[-1] - 1
+        left, right = cols[0] + 4, cols[-1] - 3  # 纱比帽檐窄一圈，不成方块
         for px in range(left, right + 1):
             if px not in brim_bottom:
                 continue
@@ -127,10 +127,10 @@ def draw(size, origin, scale=1.0, tilt=0.21, sway=0.0, veil_front=15, veil_back=
                 if not (0 <= x < w and 0 <= y < h):
                     continue
                 fade = 1 - 0.55 * i / max(length, 1)
-                a = int((105 + 65 * fold + 55 * max(0.0, u - 0.45)) * fade)
+                a = int((40 + 34 * fold + 36 * max(0.0, u - 0.45)) * fade)  # 轻纱：透得见底下的脸
                 c = VEIL
                 if i >= int(length) - 1:                     # 下摆一线亮
-                    c, a = VEIL_HI, min(200, a + 70)
+                    c, a = VEIL_HI, min(140, a + 55)
                 elif fold > 0.85:
                     c = VEIL_HI
                 if vp[x, y][3] < a:

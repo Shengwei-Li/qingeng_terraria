@@ -256,12 +256,14 @@ namespace QingyiJianxian.Content.Projectiles
 				tip[i] = Projectile.Center + d * L * r * 0.97f;
 			}
 			float time = Main.GlobalTimeWrappedHourly;
-			// 外层：流动的青气，铺满剑身中段到剑尖
-			Trail.Draw(mid, p => L * 0.7f * (1f - 0.55f * p), p => Fx.Teal * (0.55f * life * (1f - p)), Trail.Qi.Value, additive: true, uRepeat: 1.4f, uScroll: time * 3f);
-			// 中层：淡青光晕
-			Trail.Draw(mid, p => L * 0.45f * (1f - 0.6f * p), p => Fx.PaleTeal * (0.25f * life * (1f - p)), Trail.Glow.Value, additive: true);
-			// 剑尖一线白玉
-			Trail.Draw(tip, p => 9f * (1f - p) + 1f, p => Fx.Jade * (0.9f * life * (1f - p)), Trail.Glow.Value, additive: true);
+			// 身子：一片深青的扇面（普通混合，白天也看得见）
+			Trail.Draw(mid, p => L * 0.66f * (1f - 0.5f * p), p => Fx.DeepTeal * (0.5f * life * (1f - p)), Trail.Glow.Value);
+			// 气纹：淡青的丝缕在扇面里流动
+			Trail.Draw(mid, p => L * 0.6f * (1f - 0.5f * p), p => Fx.PaleTeal * (0.75f * life * (1f - p)), Trail.Qi.Value, uRepeat: 1.4f, uScroll: time * 3f);
+			// 剑尖：一线白玉，外面一圈深青描边，再叠一层光
+			Trail.Draw(tip, p => 14f * (1f - p) + 2f, p => Fx.DeepTeal * (0.6f * life * (1f - p)), Trail.Glow.Value);
+			Trail.Draw(tip, p => 8f * (1f - p) + 1f, p => Fx.Jade * (0.95f * life * (1f - p)), Trail.Glow.Value);
+			Trail.Draw(tip, p => 5f * (1f - p) + 1f, p => Fx.Jade * (0.5f * life * (1f - p)), Trail.Glow.Value, additive: true);
 		}
 
 		/// <summary>前刺：剑身前后一道细长的光。</summary>
