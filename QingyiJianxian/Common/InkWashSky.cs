@@ -66,62 +66,52 @@ namespace QingyiJianxian.Common
 			DrawMountains(spriteBatch, "MountainsNear", Color.Lerp(DayNear, NightNear, night) * (1f - domain), 0.12f, 0.46f, 2.2f);
 		}
 
-		// 法相贴图里的位置（像素，见 tools/make_colossus.py 的输出）
-		private const float BladeX = 477f;                                // 竖在脸前的剑身中线
-		private const int WindStrip = 3;                                  // 风吹波动的条带高度
+		// 法相贴图里的位置（原图像素，见 tools/make_colossus.py）
+		private const float BladeX = 954f;      // 竖在脸前的剑身中线
+		private const float BladeTop = 0f, BladeBottom = 600f;
 
 		/// <summary>
 		/// 法天相地：空白天幕上剑仙本人的法相，剑竖在脸前只露一只眼。
-		///   风：外层（长发、发带、衣袖、云）按水平条带随风摆动，越往上摆得越大；中间的脸、剑、手不动；
-		///   眨眼：每隔几秒眨一次（换成闭眼的核心层）；
-		///   剑光：每隔几秒一道寒光沿剑身从上往下扫过；
-		///   云雾：身前身后几缕流云横飘；整体随呼吸极轻地起伏。
+		/// 整幅一层、不透明，像画在这张纸上的——不切条带错动（会把长发撕成锯齿、在脸旁留折痕），也不半透明。
+		/// 动静靠这些：极慢的呼吸（缩放）和浮沉；每隔几秒眨一次眼；剑光沿剑身扫下；身后身前几层流云横飘。
 		/// 剑仙化光没入时整幅泛起青辉。
 		/// </summary>
 		private void DrawColossus(SpriteBatch sb, float domain)
 		{
 			if (domain <= 0.01f)
 				return;
-			Texture2D flow = ModContent.Request<Texture2D>("QingyiJianxian/Assets/Sky/Colossus").Value;
 			float t = Main.GlobalTimeWrappedHourly;
 			float eyeFinal = DomainSystem.ColossusEye;
 			bool blinking = eyeFinal < 0.5f && t % 4.7f < 0.16f;
-			Texture2D core = ModContent.Request<Texture2D>(blinking ? "QingyiJianxian/Assets/Sky/ColossusCoreClosed" : "QingyiJianxian/Assets/Sky/ColossusCore").Value;
+			Texture2D tex = ModContent.Request<Texture2D>(blinking ? "QingyiJianxian/Assets/Sky/ColossusClosed" : "QingyiJianxian/Assets/Sky/Colossus").Value;
 
-			float breathe = 1f + 0.006f * MathF.Sin(t * 1.2f);
-			float scale = Main.screenWidth * 1.02f / flow.Width * breathe;
+			// 呼吸与浮沉：都很慢、很小——巨物的动是沉的
+			float breathe = 1f + 0.004f * MathF.Sin(t * 0.9f);
+			float bob = MathF.Sin(t * 0.45f) * 6f;
+			float scale = Main.screenWidth * 1.02f / tex.Width * breathe;
 			// 巨大而遥远：几乎不随镜头动，只有一点点视差
 			float drift = MathHelper.Clamp((Main.screenPosition.X + Main.screenWidth / 2f - DomainSystem.Center.X) * -0.02f, -50f, 50f);
-			var topLeft = new Vector2((Main.screenWidth - flow.Width * scale) / 2f + drift, -Main.screenHeight * 0.02f);
+			var topLeft = new Vector2((Main.screenWidth - tex.Width * scale) / 2f + drift, -Main.screenHeight * 0.02f + bob);
 
 			float emerge = MathHelper.Clamp((domain - 0.4f) / 0.6f, 0f, 1f);
 			float merge = DomainSystem.ColossusMerge;
 			float fade = emerge * intensity;
-			Color tint = Color.Lerp(Color.White, new Color(150, 235, 225), merge) * (0.55f + 0.25f * merge) * fade;
+			// 浮现时由淡转实；平时几乎不透明，化光时泛青
+			Color tint = Color.Lerp(Color.White, new Color(170, 238, 228), merge * 0.6f) * (0.92f * fade);
 
-			DrawMist(sb, topLeft, flow, scale, fade, t, behind: true);
-
-			// 风：条带左右错动。一道主波从上往下走，再叠一道慢的阵风；越往上（发梢、发带）摆得越大
-			for (int y = 0; y < flow.Height; y += WindStrip)
-			{
-				float up = 1f - y / (float)flow.Height;
-				float wave = MathF.Sin(t * 2.2f - y * 0.06f) * (3f + 10f * up);
-				float gust = MathF.Sin(t * 0.7f + y * 0.02f) * (2f + 4f * up);
-				var src = new Rectangle(0, y, flow.Width, Math.Min(WindStrip, flow.Height - y));
-				sb.Draw(flow, topLeft + new Vector2((wave + gust) * scale, y * scale), src, tint, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-			}
-			sb.Draw(core, topLeft, null, tint, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+			DrawMist(sb, topLeft, tex, scale, fade, t, behind: true);
+			sb.Draw(tex, topLeft, null, tint, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
 
 			// 剑光：每 3.3 秒一道寒光从剑尖扫到剑柄
 			float sweep = t % 3.3f / 0.7f;
 			if (sweep < 1f)
 			{
-				Vector2 at = topLeft + new Vector2(BladeX, MathHelper.Lerp(0f, 300f, sweep)) * scale;
-				float s = MathF.Sin(MathF.PI * sweep);
-				ScreenLine(sb, at - new Vector2(0f, 26f * scale), at + new Vector2(0f, 26f * scale), Color.White * 0.8f * s * fade, 2.5f * scale);
+				Vector2 at = topLeft + new Vector2(BladeX, MathHelper.Lerp(BladeTop, BladeBottom, sweep)) * scale;
+				float s2 = MathF.Sin(MathF.PI * sweep);
+				ScreenLine(sb, at - new Vector2(0f, 50f * scale), at + new Vector2(0f, 50f * scale), Color.White * 0.8f * s2 * fade, 4f * scale);
 			}
 
-			DrawMist(sb, topLeft, flow, scale, fade, t, behind: false);
+			DrawMist(sb, topLeft, tex, scale, fade, t, behind: false);
 		}
 
 		/// <summary>几缕流云：拉长的柔光，缓缓横飘、循环。身后一层淡、身前一层更淡。</summary>
@@ -129,15 +119,15 @@ namespace QingyiJianxian.Common
 		{
 			Texture2D glow = Fx.SoftGlowLarge.Value;
 			float w = flow.Width * scale, h = flow.Height * scale;
-			int count = behind ? 4 : 3;
+			int count = behind ? 5 : 5;
 			for (int i = 0; i < count; i++)
 			{
 				float seed = i * 1.37f + (behind ? 0f : 0.5f);
 				float speed = (behind ? 0.010f : 0.016f) * (1f + 0.3f * i);
 				float x = ((t * speed + seed * 0.31f) % 1f) * (w * 1.4f) - w * 0.2f;
-				float y = h * (behind ? 0.55f + 0.1f * i : 0.7f + 0.08f * i) + MathF.Sin(t * 0.5f + seed) * 10f * scale;
-				var size = new Vector2(w * (behind ? 0.45f : 0.35f), h * 0.07f);
-				Color c = new Color(250, 252, 250) * (behind ? 0.45f : 0.3f) * fade;
+				float y = h * (behind ? 0.45f + 0.09f * i : 0.62f + 0.07f * i) + MathF.Sin(t * 0.5f + seed) * 10f * scale;
+				var size = new Vector2(w * (behind ? 0.5f : 0.42f), h * (behind ? 0.08f : 0.1f));
+				Color c = new Color(250, 252, 250) * (behind ? 0.5f : 0.55f) * fade;
 				sb.Draw(glow, topLeft + new Vector2(x, y), null, c, 0f, glow.Size() / 2f, size / glow.Size(), SpriteEffects.None, 0f);
 			}
 		}
