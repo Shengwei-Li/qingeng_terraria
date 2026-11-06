@@ -181,6 +181,8 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 		/// <summary>True while any Sword Immortal is in phase two or later; drives the ink-wash sky.</summary>
 		public static bool InkWashActive()
 		{
+			if (Common.DevCapture.DomainPreview > 0)
+				return true;
 			int i = NPC.FindFirstNPC(ModContent.NPCType<SwordImmortal>());
 			return i >= 0 && Main.npc[i].ModNPC is SwordImmortal boss && boss.phase >= 2 && boss.CurrentState != State.Ending;
 		}

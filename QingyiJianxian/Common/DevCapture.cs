@@ -23,12 +23,17 @@ namespace QingyiJianxian.Common
 		private static int every;
 		private static int tick;
 		private static int index;
+		private static int delay;
+
+		/// <summary>/qyfx domain：不打 Boss，直接把三阶段的空白天地和法相展开这么多帧。</summary>
+		public static int DomainPreview;
 		private static readonly List<(Color[] data, int w, int h, int i)> pending = new();
 
 		public static string Folder => Path.Combine(Main.SavePath, "QingyiCaptures");
 
-		public static void Start(string captureName, int frames, int stride = 2)
+		public static void Start(string captureName, int frames, int stride = 2, int wait = 0)
 		{
+			delay = wait;
 			name = captureName;
 			framesLeft = frames;
 			every = stride;
@@ -52,10 +57,25 @@ namespace QingyiJianxian.Common
 			Main.OnPostDraw -= Capture;
 		}
 
+		// 在 NPC 更新之后、DomainSystem 收尾之前写目标值（和 Boss 写的时机一样）
+		public override void PostUpdateNPCs()
+		{
+			if (DomainPreview <= 0)
+				return;
+			DomainPreview--;
+			DomainSystem.Center = Main.LocalPlayer.Center;
+			DomainSystem.TargetDomain = 1f;
+		}
+
 		private static void Capture(GameTime _)
 		{
 			if (framesLeft <= 0 || name == null)
 				return;
+			if (delay > 0)
+			{
+				delay--;
+				return;
+			}
 			if (tick++ % every != 0)
 				return;
 			GraphicsDevice gd = Main.graphics.GraphicsDevice;
@@ -93,7 +113,7 @@ namespace QingyiJianxian.Common
 	{
 		public override CommandType Type => CommandType.Chat;
 		public override string Command => "qyfx";
-		public override string Usage => "/qyfx qi|lance|swing|river|all";
+		public override string Usage => "/qyfx qi|lance|swing|river|domain";
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
@@ -104,7 +124,7 @@ namespace QingyiJianxian.Common
 			int dmg = 60;
 
 			// 靶子：身前 200、420、640 像素各一只
-			for (int k = 0; k < 3; k++)
+			for (int k = 0; k < (what == "domain" ? 0 : 3); k++)
 			{
 				int n = NPC.NewNPC(src, (int)(p.Center.X + dir * (200 + 220 * k)), (int)p.Bottom.Y - 4, NPCID.BlueSlime);
 				NPC npc = Main.npc[n];
@@ -126,6 +146,11 @@ namespace QingyiJianxian.Common
 				case "swing":
 					Projectile.NewProjectile(src, p.MountedCenter, aim, ModContent.ProjectileType<ClearmoonSwing>(), dmg, 2f, p.whoAmI, 0f, dir);
 					DevCapture.Start("swing", 14, 1);
+					break;
+				case "domain":
+					// 展开 15 秒；等 3 秒天地褪白、法相浮现后，每 4 帧录一张，录 6 秒
+					DevCapture.DomainPreview = 60 * 15;
+					DevCapture.Start("domain", 90, 4, 180);
 					break;
 				case "river":
 					Projectile.NewProjectile(src, new Vector2(p.Center.X + dir * 12f, p.Center.Y), Vector2.Zero, ModContent.ProjectileType<TalismanRiver>(), dmg, 9f, p.whoAmI, dir, p.Center.Y);
