@@ -13,7 +13,7 @@ namespace QingyiJianxian.Common
 	/// <summary>
 	/// 开发用：把游戏画面一帧帧存成 PNG，供离线检查特效。
 	/// 游戏内 Build + Reload 编出来的不带 DEBUG，所以没法用 #if DEBUG 隔开——发布到创意工坊前删掉这个文件。
-	/// 截的是最终画面（含光照、背景、地形），画面中央 1280×720 的一块，每 2 帧存一张。
+	/// 截的是最终画面（含光照、背景、地形），整个画面（最大 1920×1080），每 2 帧存一张。
 	/// 存到 tModLoader 存档目录下的 QingyiCaptures/&lt;名字&gt;/。
 	/// </summary>
 	public class DevCapture : ModSystem
@@ -60,7 +60,7 @@ namespace QingyiJianxian.Common
 				return;
 			GraphicsDevice gd = Main.graphics.GraphicsDevice;
 			int bw = gd.PresentationParameters.BackBufferWidth, bh = gd.PresentationParameters.BackBufferHeight;
-			int w = Math.Min(1280, bw), h = Math.Min(720, bh);
+			int w = Math.Min(1920, bw), h = Math.Min(1080, bh); // 整屏：剑河 800 像素的尽头也要录进来
 			var rect = new Rectangle((bw - w) / 2, (bh - h) / 2, w, h);
 			var data = new Color[w * h];
 			gd.GetBackBufferData(rect, data, 0, data.Length);
