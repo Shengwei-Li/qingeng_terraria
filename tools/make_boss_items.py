@@ -9,6 +9,7 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
+import sys; sys.path.insert(0, str(Path(__file__).resolve().parent))
 ART = ROOT / "design_image" / "定稿"
 MOD = ROOT / "QingyiJianxian"
 ITEMS = MOD / "Content" / "Items"
@@ -46,21 +47,19 @@ relic.thumbnail((48, 48), Image.Resampling.NEAREST)
 relic.save(ITEMS / "SwordImmortalRelic.png")
 tile_sheet(relic, 3, 3).save(TILES / "SwordImmortalRelicTile.png")
 
-# ── 斗笠：PixelLab 生成的斗笠（斜戴、垂纱），图标原样用；戴在头上的 20 帧就是同一张图按头的位置摆上去 ──
-# 头部位置量自 ExampleMod 的兜帽模板：普通帧头顶在 y 10；第 7-9、14-16 帧上移 2 像素（走路时头一起一伏）
-# 摆法：斗笠的尖在头顶上方，帽檐压在眉上，纱垂到下巴上方；横向居中在头上（人物朝右）
+# ── 斗笠：手画（tools/douli.py）。斜戴的竹编斗笠，青带、带尾，帽檐垂纱遮住大半张脸 ──
+# 头部位置量自 ExampleMod 的兜帽模板：普通帧头顶在 y 10、头在 x 8-30；第 7-9、14-16 帧上移 2 像素
+# 走路帧（6-19）带尾和纱的下段随步子前后摆
+import douli
 BOB = {7, 8, 9, 14, 15, 16}
-douli = Image.open(ART / "斗笠.png").convert("RGBA")
-douli.save(ITEMS / "Armor" / "SwordImmortalHat.png")
 hat = Image.new("RGBA", (40, 56 * 20), (0, 0, 0, 0))
 for f in range(20):
     top = 10 - (2 if f in BOB else 0)
-    frame = Image.new("RGBA", (40, 56), (0, 0, 0, 0))
-    oy = top - 13  # 斗笠图上第 5 行是尖，落在头顶上方约 8 像素
-    # alpha_composite 不能贴负坐标：负的部分改为从源图里裁掉（那几行本就是空的）
-    frame.alpha_composite(douli, (4, max(oy, 0)), (0, max(-oy, 0)))
+    sway = math.sin((f - 6) * 0.9) if f >= 6 else 0.0
+    frame = douli.draw((40, 56), (19.5, top + 4.5), sway=sway)
     hat.alpha_composite(frame, (0, 56 * f))
 hat.save(ITEMS / "Armor" / "SwordImmortalHat_Head.png")
+douli.draw((32, 30), (16.5, 11.5), scale=0.95, veil_front=16, veil_back=13).save(ITEMS / "Armor" / "SwordImmortalHat.png")
 
 # 清流剑符：PixelLab 生成，原尺寸
 Image.open(ART / "清流剑符.png").convert("RGBA").save(ITEMS / "LingeringStreamTalisman.png")
