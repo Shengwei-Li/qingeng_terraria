@@ -1,4 +1,3 @@
-#if DEBUG
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +11,8 @@ using Terraria.ModLoader;
 namespace QingyiJianxian.Common
 {
 	/// <summary>
-	/// 开发用：把游戏画面一帧帧存成 PNG，供离线检查特效（只在从源码构建的调试版里存在，发布版没有）。
+	/// 开发用：把游戏画面一帧帧存成 PNG，供离线检查特效。
+	/// 游戏内 Build + Reload 编出来的不带 DEBUG，所以没法用 #if DEBUG 隔开——发布到创意工坊前删掉这个文件。
 	/// 截的是最终画面（含光照、背景、地形），画面中央 1280×720 的一块，每 2 帧存一张。
 	/// 存到 tModLoader 存档目录下的 QingyiCaptures/&lt;名字&gt;/。
 	/// </summary>
@@ -138,4 +138,3 @@ namespace QingyiJianxian.Common
 		}
 	}
 }
-#endif
