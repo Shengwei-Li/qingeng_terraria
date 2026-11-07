@@ -114,21 +114,27 @@ namespace QingyiJianxian.Common
 			DrawMist(sb, topLeft, tex, scale, fade, t, behind: false);
 		}
 
-		/// <summary>几缕流云：拉长的柔光，缓缓横飘、循环。身后一层淡、身前一层更淡。</summary>
+		/// <summary>
+		/// 流云：法相原图里裁下来的祥云（Cloud0、Cloud1，同一种画风），在法相身后、身前缓缓横飘，循环。
+		/// 身后的大而慢、略淡；身前的从下半身漫过，稍快。每朵大小、朝向、高低、速度各不相同。
+		/// </summary>
 		private static void DrawMist(SpriteBatch sb, Vector2 topLeft, Texture2D flow, float scale, float fade, float t, bool behind)
 		{
-			Texture2D glow = Fx.SoftGlowLarge.Value;
 			float w = flow.Width * scale, h = flow.Height * scale;
-			int count = behind ? 5 : 5;
+			int count = behind ? 3 : 3;
 			for (int i = 0; i < count; i++)
 			{
-				float seed = i * 1.37f + (behind ? 0f : 0.5f);
-				float speed = (behind ? 0.010f : 0.016f) * (1f + 0.3f * i);
-				float x = ((t * speed + seed * 0.31f) % 1f) * (w * 1.4f) - w * 0.2f;
-				float y = h * (behind ? 0.45f + 0.09f * i : 0.62f + 0.07f * i) + MathF.Sin(t * 0.5f + seed) * 10f * scale;
-				var size = new Vector2(w * (behind ? 0.5f : 0.42f), h * (behind ? 0.08f : 0.1f));
-				Color c = new Color(250, 252, 250) * (behind ? 0.5f : 0.55f) * fade;
-				sb.Draw(glow, topLeft + new Vector2(x, y), null, c, 0f, glow.Size() / 2f, size / glow.Size(), SpriteEffects.None, 0f);
+				int k = i + (behind ? 0 : 3);
+				Texture2D cloud = ModContent.Request<Texture2D>(k % 2 == 0 ? "QingyiJianxian/Assets/Sky/Cloud0" : "QingyiJianxian/Assets/Sky/Cloud1").Value;
+				float size = scale * (behind ? 1.5f + 0.35f * i : 1.1f + 0.3f * i);
+				float cw = cloud.Width * size;
+				float speed = (behind ? 6f : 11f) * (1f + 0.25f * i) * scale;   // 像素/秒
+				float span = w + cw * 2f;
+				float x = ((t * speed + k * 0.37f * span) % span) - cw;
+				float y = h * (behind ? 0.18f + 0.22f * i : 0.58f + 0.12f * i) + MathF.Sin(t * 0.4f + k) * 8f * scale;
+				float a = behind ? 0.8f : 0.92f;
+				var flip = k % 3 == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+				sb.Draw(cloud, topLeft + new Vector2(x, y), null, Color.White * (a * fade), 0f, Vector2.Zero, size, flip, 0f);
 			}
 		}
 

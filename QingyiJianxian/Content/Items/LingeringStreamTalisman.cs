@@ -35,7 +35,7 @@ namespace QingyiJianxian.Content.Items
 			Item.autoReuse = false;
 			Item.noMelee = true;
 			Item.DamageType = DamageClass.Generic;
-			Item.damage = 220;
+			Item.damage = 260;
 			Item.knockBack = 9f;
 			Item.shoot = ModContent.ProjectileType<TalismanRiver>();
 			Item.shootSpeed = 1f;

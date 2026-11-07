@@ -68,6 +68,39 @@ for x in range(EYE_X0, EYE_X1 + 1):
             closed[y, x] = (62, 44, 44)
 save(closed, OUT / "ColossusClosed.png")
 
+# ── 流云：直接从原图里裁下它自己的祥云（和法相同一种画风），游戏里在法相身前身后横飘 ──
+# 底色是纯白：从四边往里泛洪，连着边的近白像素才去掉；云肚子里的浅灰白保留不透明
+from collections import deque
+
+
+def cut_cloud(box, name):
+    c = a[box[1]:box[3], box[0]:box[2]].copy()
+    ch, cw = c.shape[:2]
+    bg = np.zeros((ch, cw), bool)
+    near_white = c.min(axis=2) >= 246
+    q = deque([(y, x) for y in range(ch) for x in (0, cw - 1)] + [(y, x) for x in range(cw) for y in (0, ch - 1)])
+    while q:
+        y, x = q.popleft()
+        if 0 <= y < ch and 0 <= x < cw and not bg[y, x] and near_white[y, x]:
+            bg[y, x] = True
+            q.extend(((y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)))
+    al = (~bg).astype(float)
+    # 青色发带的残片去掉（只要灰白的云）
+    teal = (c[..., 2] - c[..., 0] > 40) & (c[..., 1] - c[..., 0] > 20)
+    al[teal] = 0
+    # 裁切边上被切断的云：靠边 14 像素渐隐，不留一刀切的直边
+    yy, xx = np.mgrid[0:ch, 0:cw]
+    edge = np.minimum.reduce([xx, cw - 1 - xx, yy, ch - 1 - yy]) / 14.0
+    al *= smooth(edge)
+    out = np.zeros((ch, cw, 4), np.uint8)
+    out[..., :3] = (c * al[..., None]).astype(np.uint8)
+    out[..., 3] = (al * 255).astype(np.uint8)
+    Image.fromarray(out, "RGBA").save(OUT / name)
+
+
+cut_cloud((1340, 150, 1620, 310), "Cloud0.png")
+cut_cloud((20, 290, 235, 430), "Cloud1.png")
+
 for old in ("ColossusCore.png", "ColossusCoreClosed.png"):
     p = OUT / old
     if p.exists():

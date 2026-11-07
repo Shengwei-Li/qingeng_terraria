@@ -121,14 +121,18 @@ namespace QingyiJianxian.Common
 			string what = args.Length > 0 ? args[0] : "all";
 			int dir = p.direction;
 			var src = p.GetSource_Misc("qyfx");
-			int dmg = 60;
+			// 伤害照物品的真实面板来（剑气按挥剑时的比例），不是随便写个数
+			int sword = p.GetWeaponDamage(ContentSamples.ItemsByType[ModContent.ItemType<Content.Items.Clearmoon>()]);
+			int river = p.GetWeaponDamage(ContentSamples.ItemsByType[ModContent.ItemType<Content.Items.LingeringStreamTalisman>()]);
+			int dmg = (int)(sword * 0.5f);
 
 			// 靶子：身前 200、420、640 像素各一只
 			for (int k = 0; k < (what == "domain" ? 0 : 3); k++)
 			{
 				int n = NPC.NewNPC(src, (int)(p.Center.X + dir * (200 + 220 * k)), (int)p.Bottom.Y - 4, NPCID.BlueSlime);
 				NPC npc = Main.npc[n];
-				npc.lifeMax = npc.life = 30000;
+				if (what != "river")
+					npc.lifeMax = npc.life = 30000; // 剑气靶子打不死；剑河用原版血量，看得出能不能斩死
 				npc.damage = 0;
 			}
 
@@ -140,11 +144,11 @@ namespace QingyiJianxian.Common
 					DevCapture.Start("qi", 30);
 					break;
 				case "lance":
-					Projectile.NewProjectile(src, p.Center + aim * 40f, aim * 28f, ModContent.ProjectileType<ClearmoonQi>(), dmg, 2f, p.whoAmI, 1f, 1f);
+					Projectile.NewProjectile(src, p.Center + aim * 40f, aim * 28f, ModContent.ProjectileType<ClearmoonQi>(), (int)(sword * 0.8f), 2f, p.whoAmI, 1f, 1f);
 					DevCapture.Start("lance", 30);
 					break;
 				case "swing":
-					Projectile.NewProjectile(src, p.MountedCenter, aim, ModContent.ProjectileType<ClearmoonSwing>(), dmg, 2f, p.whoAmI, 0f, dir);
+					Projectile.NewProjectile(src, p.MountedCenter, aim, ModContent.ProjectileType<ClearmoonSwing>(), sword, 2f, p.whoAmI, 0f, dir);
 					DevCapture.Start("swing", 14, 1);
 					break;
 				case "domain":
@@ -153,7 +157,7 @@ namespace QingyiJianxian.Common
 					DevCapture.Start("domain", 90, 4, 180);
 					break;
 				case "river":
-					Projectile.NewProjectile(src, new Vector2(p.Center.X + dir * 12f, p.Center.Y), Vector2.Zero, ModContent.ProjectileType<TalismanRiver>(), dmg, 9f, p.whoAmI, dir, p.Center.Y);
+					Projectile.NewProjectile(src, new Vector2(p.Center.X + dir * 12f, p.Center.Y), Vector2.Zero, ModContent.ProjectileType<TalismanRiver>(), river, 9f, p.whoAmI, dir, p.Center.Y);
 					DevCapture.Start("river", 40);
 					break;
 				default:
