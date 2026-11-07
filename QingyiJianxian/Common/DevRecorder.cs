@@ -202,12 +202,17 @@ namespace QingyiJianxian.Common
 		public override bool IsLoadingEnabled(Mod mod) => DevTools.Enabled;
 
 		/// <summary>录像时放大、镜头上抬（剑仙和武器演示共用）。</summary>
-		public static void BeginFraming()
+		/// <param name="zoom">放大倍数（1-2）</param>
+		/// <param name="lift">镜头上抬几屏</param>
+		/// <param name="shift">镜头往前（朝 shift 的正负方向）挪几屏：武器朝前打，人物站在左三分之一</param>
+		public static void BeginFraming(float zoom = ShowZoom, float lift = LiftScreens, float shift = 0f)
 		{
 			oldHideUI = Main.hideUI;
 			Main.hideUI = true;
 			oldZoom = Main.GameZoomTarget;
-			Main.GameZoomTarget = ShowZoom;
+			Main.GameZoomTarget = frameZoom = zoom;
+			frameLift = lift;
+			frameShift = shift;
 			framing = true;
 			QybossCommand.God = true;
 		}
@@ -221,6 +226,7 @@ namespace QingyiJianxian.Common
 		}
 
 		private static bool framing;
+		private static float frameZoom, frameLift, frameShift;
 
 		public static string Begin()
 		{
@@ -253,7 +259,10 @@ namespace QingyiJianxian.Common
 		public override void ModifyScreenPosition()
 		{
 			if (framing)
-				Main.screenPosition.Y -= Main.screenHeight * LiftScreens / ShowZoom;
+			{
+				Main.screenPosition.Y -= Main.screenHeight * frameLift / frameZoom;
+				Main.screenPosition.X += Main.screenWidth * frameShift / frameZoom;
+			}
 		}
 
 		public override void OnWorldUnload()
@@ -500,6 +509,7 @@ namespace QingyiJianxian.Common
 
 		private static int step = -1;
 		private static bool started;
+		private static int settle; // 开录后先等 1.5 秒：界面隐藏、镜头放大都到位了再出招
 		private static double stepStart;
 		private static int dir;
 		private static int slot;
@@ -528,9 +538,10 @@ namespace QingyiJianxian.Common
 			slot = p.selectedItem;
 			original = p.inventory[slot];
 			marks.Clear();
-			BossShow.BeginFraming();
+			BossShow.BeginFraming(2f, 0.08f, dir * 0.22f);
 			step = 0;
 			started = false;
+			settle = 90;
 			return null;
 		}
 
@@ -552,6 +563,11 @@ namespace QingyiJianxian.Common
 		{
 			if (!Running || Main.gameMenu || !ScreenRecorder.HasFrames)
 				return;
+			if (settle > 0)
+			{
+				settle--;
+				return;
+			}
 			if (Hold > 0)
 				Hold--;
 			Player p = Main.LocalPlayer;
