@@ -113,7 +113,7 @@ namespace QingyiJianxian.Common
 	{
 		public override CommandType Type => CommandType.Chat;
 		public override string Command => "qyfx";
-		public override string Usage => "/qyfx qi|lance|swing|river|domain";
+		public override string Usage => "/qyfx qi|lance|swing|river|riverup|domain";
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
@@ -156,8 +156,13 @@ namespace QingyiJianxian.Common
 					DevCapture.DomainPreview = 60 * 15;
 					DevCapture.Start("domain", 90, 4, 180);
 					break;
+				case "riverup":
+					// 斜着往上 30° 碾出去，看任意角度时贴地和尽头消散
+					Projectile.NewProjectile(src, p.Center + aim * 12f, Vector2.Zero, ModContent.ProjectileType<TalismanRiver>(), river, 9f, p.whoAmI, aim.ToRotation() - dir * 0.52f);
+					DevCapture.Start("riverup", 40);
+					break;
 				case "river":
-					Projectile.NewProjectile(src, new Vector2(p.Center.X + dir * 12f, p.Center.Y), Vector2.Zero, ModContent.ProjectileType<TalismanRiver>(), river, 9f, p.whoAmI, dir, p.Center.Y);
+					Projectile.NewProjectile(src, p.Center + aim * 12f, Vector2.Zero, ModContent.ProjectileType<TalismanRiver>(), river, 9f, p.whoAmI, aim.ToRotation());
 					DevCapture.Start("river", 40);
 					break;
 				default:

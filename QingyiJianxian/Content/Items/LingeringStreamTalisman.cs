@@ -9,13 +9,12 @@ namespace QingyiJianxian.Content.Items
 {
 	/// <summary>
 	/// 清流剑符 / Talisman of the Lingering Stream：剑仙留在符纸上的一道剑意，用一张少一张。
-	/// 从身边起势，朝鼠标那一侧水平碾出一道白玉色的剑河。鼠标的高度决定河道走哪一层（离自己上下最多 10 格）。
-	/// 范围有限：高 7 格、长 50 格，贴地流、撞墙停；每个敌人只斩一次，最多斩 12 个，对 Boss 打七折。见 TalismanRiver。
+	/// 从身边起势，朝点下的方向（任意角度）碾出一道白玉色的剑河。
+	/// 范围有限：宽 7 格、长 50 格，贴地流、撞墙停；每个敌人只斩一次，最多斩 12 个，对 Boss 打七折。见 TalismanRiver。
 	/// 不分职业——打完剑仙，法师、射手、召唤师也有东西拿。
 	/// </summary>
 	public class LingeringStreamTalisman : ModItem
 	{
-		public const float LaneRange = 160f;   // 河道中线离自己上下最多多远（10 格）
 
 		public override void SetStaticDefaults()
 		{
@@ -46,9 +45,10 @@ namespace QingyiJianxian.Content.Items
 
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
 		{
-			int dir = Main.MouseWorld.X >= player.Center.X ? 1 : -1;
-			float lane = MathHelper.Clamp(Main.MouseWorld.Y, player.Center.Y - LaneRange, player.Center.Y + LaneRange);
-			Projectile.NewProjectile(source, new Vector2(player.Center.X + dir * 12f, lane), Vector2.Zero, type, damage, knockback, player.whoAmI, dir, lane);
+			// 朝点下的方向（任意角度）碾出去
+			Vector2 aim = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX * player.direction);
+			int dir = aim.X >= 0f ? 1 : -1;
+			Projectile.NewProjectile(source, player.Center + aim * 12f, Vector2.Zero, type, damage, knockback, player.whoAmI, aim.ToRotation());
 			player.ChangeDir(dir);
 			// 保命：放出的一瞬无敌 1 秒（6 秒内只一次），身周泛起一圈白玉光
 			var sp = player.GetModPlayer<Common.SwordPlayer>();
