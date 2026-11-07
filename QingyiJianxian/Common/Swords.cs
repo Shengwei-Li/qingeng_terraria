@@ -57,6 +57,8 @@ namespace QingyiJianxian.Common
 		public int ComboTimer;
 		// 清月剑右键御剑：剑飞回手里之后的冷却
 		public int FlightCooldown;
+		// 清流剑符的保命无敌：放出时无敌 1 秒；6 秒内只触发一次，免得连放剑符一直无敌
+		public int TalismanGuardCooldown;
 
 		// 剑意：剑类命中叠层，每层剑类伤害 +4%、攻速 +3%，最多 5 层；三秒不出剑就散
 		public const int MaxWill = 5;
@@ -129,6 +131,8 @@ namespace QingyiJianxian.Common
 				ComboStep = 0;
 			if (FlightCooldown > 0)
 				FlightCooldown--;
+			if (TalismanGuardCooldown > 0)
+				TalismanGuardCooldown--;
 
 			if (guardTimer > 0)
 				guardTimer--;

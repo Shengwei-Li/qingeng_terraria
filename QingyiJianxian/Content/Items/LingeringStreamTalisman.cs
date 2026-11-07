@@ -50,6 +50,19 @@ namespace QingyiJianxian.Content.Items
 			float lane = MathHelper.Clamp(Main.MouseWorld.Y, player.Center.Y - LaneRange, player.Center.Y + LaneRange);
 			Projectile.NewProjectile(source, new Vector2(player.Center.X + dir * 12f, lane), Vector2.Zero, type, damage, knockback, player.whoAmI, dir, lane);
 			player.ChangeDir(dir);
+			// 保命：放出的一瞬无敌 1 秒（6 秒内只一次），身周泛起一圈白玉光
+			var sp = player.GetModPlayer<Common.SwordPlayer>();
+			if (sp.TalismanGuardCooldown <= 0)
+			{
+				sp.TalismanGuardCooldown = 60 * 6;
+				player.immune = true;
+				player.immuneNoBlink = false;
+				player.immuneTime = System.Math.Max(player.immuneTime, 60);
+				for (int i = 0; i < player.hurtCooldowns.Length; i++)
+					player.hurtCooldowns[i] = System.Math.Max(player.hurtCooldowns[i], 60);
+				for (int i = 0; i < 16; i++)
+					Common.Fx.Mote(player.Center + (MathHelper.TwoPi * i / 16f).ToRotationVector2() * 26f, (MathHelper.TwoPi * i / 16f).ToRotationVector2() * 1.5f, 0.9f);
+			}
 			// 符纸化灰
 			for (int i = 0; i < 10; i++)
 			{
