@@ -145,16 +145,13 @@ namespace QingyiJianxian.Content.Projectiles
 				SoundEngine.PlaySound(Thrust ? SoundID.Item71 with { Pitch = 0.35f } : SoundID.Item1 with { Pitch = 0.15f + 0.15f * Step }, owner.Center);
 
 			Vector2 aimDir = aim.ToRotationVector2();
-			// 前刺带一小步突进
+			// 前刺带一小步突进——只在脚踏实地时。空中不动玩家的速度：飞行、跳跃时被拽一下会失去控制
 			if (Thrust && !lunged && Progress >= 0.3f)
 			{
 				lunged = true;
-				if (Projectile.owner == Main.myPlayer && owner.grappling[0] < 0 && !owner.mount.Active)
-				{
+				bool grounded = owner.velocity.Y == 0f;
+				if (Projectile.owner == Main.myPlayer && grounded && owner.grappling[0] < 0 && !owner.mount.Active)
 					owner.velocity.X = MathHelper.Lerp(owner.velocity.X, aimDir.X * 8f, 0.7f);
-					if (aimDir.Y < -0.3f)
-						owner.velocity.Y = Math.Min(owner.velocity.Y, aimDir.Y * 5f);
-				}
 			}
 
 			// 剑气：横扫、回撩挥到正中甩出一线剑气；前刺扎到头刺出一道长剑气
