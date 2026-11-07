@@ -80,6 +80,10 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 
 		public override bool? DrawHealthBar(byte hbPosition, ref float scale, ref Vector2 position) => false;
 
+		// 必遇之后，玩家得找得到他：地图和小地图上显示剑仙的头像（和 Boss 战用同一个）
+		public override void BossHeadSlot(ref int index)
+			=> index = ModContent.GetModBossHeadSlot("QingyiJianxian/Content/NPCs/SwordImmortal/SwordImmortal_Head_Boss");
+
 		public override float SpawnChance(NPCSpawnInfo spawnInfo)
 		{
 			// 打过骷髅王以后，白天的地表会遇到他（每天最多一次）：
