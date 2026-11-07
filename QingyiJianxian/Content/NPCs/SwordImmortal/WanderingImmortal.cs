@@ -82,10 +82,15 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 
 		public override float SpawnChance(NPCSpawnInfo spawnInfo)
 		{
-			// 肉前中期（打过骷髅王）以后，白天的地表，偶尔会遇到他
+			// 打过骷髅王以后，白天的地表会遇到他（每天最多一次）：
+			//   这个世界第一次——必遇，白天到地表上一会儿他就来了；
+			//   困难模式里还没战胜过他——每天白天都会遇到，不会卡在找不到他；
+			//   其余时候——偶尔。
 			if (!NPC.downedBoss3 || !Main.dayTime || !spawnInfo.Player.ZoneOverworldHeight || spawnInfo.Invasion
 				|| WorldFlags.EncounteredToday || NPC.AnyNPCs(Type) || NPC.AnyNPCs(ModContent.NPCType<SwordImmortal>()) || NPC.AnyDanger())
 				return 0f;
+			if (!WorldFlags.MetImmortal || (Main.hardMode && !WorldFlags.DownedSwordImmortal))
+				return 0.5f;
 			return 0.004f;
 		}
 
@@ -95,6 +100,9 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 		public override void OnSpawn(IEntitySource source)
 		{
 			WorldFlags.EncounteredToday = true;
+			WorldFlags.MetImmortal = true;
+			if (Main.netMode == NetmodeID.Server)
+				NetMessage.SendData(MessageID.WorldData);
 			Announce("Arrive"); // 全服提示：一缕酒香随风飘来……
 		}
 

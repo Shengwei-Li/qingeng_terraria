@@ -2,10 +2,11 @@
 剑仙不会被杀死：接下他的最后一剑，战斗结束，他留下礼物离开。
 
 ■ 怎么遇到他
-  · 打败骷髅王后，白天在地表有机会遇到他坐在云上喝酒（每天最多一次，天黑或附近没人时离开）
+  · 打败骷髅王后，第一次白天到地表就会遇到他坐在云上喝酒；之后每天最多遇到一次，天黑或附近没人时离开
+  · 困难模式里，战胜他之前每天白天都会遇到他
   · 困难模式之前攻击他：他会用剑气把你赶走，越打伤害越高，可能致死
   · 困难模式之后攻击他两次：开始战斗
-  · 第一次战胜后获得"一壶酒"，之后可以随时召唤他
+  · 第一次战胜后获得"一壶酒"（消耗品），之后可以在酒桶旁用麦芽酒和云纹绡酿造，随时召唤他
 
 ■ 战斗
   · 第一阶段：一剑横江、御剑术、落叶成剑
@@ -33,10 +34,11 @@ The Azure-Clad Sword Immortal: an ink-wash style xianxia boss mod. Fightable aft
 He can't be killed. Take his final stroke and the fight ends; he leaves you gifts and departs.
 
 ■ Finding him
-  · After Skeletron, you may find him drinking on a cloud on the surface during the day (at most once a day; he leaves at night or when no one is near)
+  · After Skeletron, he appears drinking on a cloud the first time you are on the surface by day; after that, at most once a day, and he leaves at night or when no one is near
+  · In hardmode, until you beat him, he shows up every day
   · Attack him before hardmode and he drives you off with sword-qi that grows stronger each time and can kill
   · Hit him twice in hardmode to start the fight
-  · Your first victory gives you the Cloudbrew Gourd, which summons him any time after that
+  · Your first victory gives you a Cloudbrew Gourd (consumable); after that you can brew more at a keg from ale and Cloudweave Silk to summon him any time
 
 ■ The fight
   · Phase 1: sword dashes, flying swords, falling leaves

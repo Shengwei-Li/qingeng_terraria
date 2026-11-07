@@ -9,7 +9,8 @@ namespace QingyiJianxian.Content.Items
 {
 	/// <summary>
 	/// 一壶酒 / Cloudbrew Gourd: pour a cup to heaven and the Sword Immortal comes.
-	/// 第一次问剑后剑仙亲手抛给你；丢了或给队友，可以在酒桶旁用麦芽酒和云纹绡酿（问过剑才解锁）。
+	/// 消耗品：每召唤一次他来问剑，消耗一壶（困难模式之前召来的只是饮酒的他，不消耗）。
+	/// 第一次问剑后剑仙亲手抛给你一壶；之后在酒桶旁用麦芽酒和云纹绡酿（问过剑才解锁）。
 	/// </summary>
 	public class CloudbrewGourd : ModItem
 	{
@@ -23,14 +24,17 @@ namespace QingyiJianxian.Content.Items
 		{
 			Item.width = 26;
 			Item.height = 30;
-			Item.maxStack = 1;
+			Item.maxStack = 20;
 			Item.useStyle = ItemUseStyleID.HoldUp;
 			Item.useTime = 30;
 			Item.useAnimation = 30;
-			Item.consumable = false;
+			Item.consumable = true;
 			Item.rare = ItemRarityID.Lime;
 			Item.value = Item.buyPrice(gold: 5);
 		}
+
+		// 肉前召来的只是饮酒的他，不算一次问剑，不消耗
+		public override bool ConsumeItem(Player player) => Main.hardMode;
 
 		public override bool CanUseItem(Player player)
 			=> !NPC.AnyNPCs(ModContent.NPCType<SwordImmortal>()) && !NPC.AnyNPCs(ModContent.NPCType<WanderingImmortal>());

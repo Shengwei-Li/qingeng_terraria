@@ -129,8 +129,8 @@ Items: {
 		RecipeCondition: After defeating the Azure-Clad Sword Immortal
 		Tooltip:
 			'''
-			Summons the Azure-Clad Sword Immortal
-			Before hardmode, he only comes to drink and can't be fought
+			Summons the Azure-Clad Sword Immortal to fight; consumed on use
+			Before hardmode, he only comes to drink, can't be fought, and the gourd isn't consumed
 			'''
 	}
 }

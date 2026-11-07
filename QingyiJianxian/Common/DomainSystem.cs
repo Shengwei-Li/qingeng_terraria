@@ -96,6 +96,9 @@ namespace QingyiJianxian.Common
 	{
 		public static bool DownedSwordImmortal;
 
+		/// <summary>这个世界里是否已经遇到过他（第一次必遇，见 WanderingImmortal.SpawnChance）。</summary>
+		public static bool MetImmortal;
+
 		/// <summary>今天已经遇到过他了：自然出现每天最多一次。天亮时清零。</summary>
 		public static bool EncounteredToday;
 		private static bool wasDay;
@@ -103,6 +106,7 @@ namespace QingyiJianxian.Common
 		public override void ClearWorld()
 		{
 			DownedSwordImmortal = false;
+			MetImmortal = false;
 			EncounteredToday = false;
 			wasDay = Main.dayTime;
 		}
@@ -118,12 +122,26 @@ namespace QingyiJianxian.Common
 		{
 			if (DownedSwordImmortal)
 				tag["downedSwordImmortal"] = true;
+			if (MetImmortal)
+				tag["metImmortal"] = true;
 		}
 
-		public override void LoadWorldData(TagCompound tag) => DownedSwordImmortal = tag.ContainsKey("downedSwordImmortal");
+		public override void LoadWorldData(TagCompound tag)
+		{
+			DownedSwordImmortal = tag.ContainsKey("downedSwordImmortal");
+			MetImmortal = tag.ContainsKey("metImmortal") || DownedSwordImmortal;
+		}
 
-		public override void NetSend(BinaryWriter writer) => writer.Write(DownedSwordImmortal);
+		public override void NetSend(BinaryWriter writer)
+		{
+			writer.Write(DownedSwordImmortal);
+			writer.Write(MetImmortal);
+		}
 
-		public override void NetReceive(BinaryReader reader) => DownedSwordImmortal = reader.ReadBoolean();
+		public override void NetReceive(BinaryReader reader)
+		{
+			DownedSwordImmortal = reader.ReadBoolean();
+			MetImmortal = reader.ReadBoolean();
+		}
 	}
 }
