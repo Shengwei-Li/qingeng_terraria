@@ -162,7 +162,7 @@ namespace QingyiJianxian.Common
 			("07_剑阵", "Ring", 0.5f, 4.5f),
 			("08_展开领域", "Transition", 0.2f, 4f),
 			("09_万剑悬空", "Hang", 0.2f, 5f),
-			("10_一笔画地", "Brush", 0.2f, 4.5f),
+			("10_一笔画地", "Brush", 0.2f, 6.5f),
 			("11_剑气纵横", "Unbound", 0.2f, 4.5f),
 			("12_醉剑", "Drunk", 0.2f, 4.5f),
 			("13_最后一剑", "Final", 0.04f, 12f),
