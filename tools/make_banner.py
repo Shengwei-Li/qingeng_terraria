@@ -44,6 +44,29 @@ def painting():
     return Image.fromarray(out, "RGBA")
 
 
+def recede(img, dim, blur):
+    """原画退到后面：压暗、稍微去饱和、轻微虚化（景深），让清晰的像素剑仙跳到前面。"""
+    arr = np.asarray(img).astype(float)
+    rgb = arr[..., :3]
+    grey = rgb.mean(axis=2, keepdims=True)
+    rgb = (rgb * 0.8 + grey * 0.2) * dim + np.array(INK) * (1 - dim)
+    arr[..., :3] = rgb
+    out = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "RGBA")
+    return out.filter(ImageFilter.GaussianBlur(blur)) if blur else out
+
+
+def ink_halo(canvas, sprite, pos, spread, strength):
+    """像素剑仙身后压一团墨晕：把身后的画压暗，人物轮廓才清楚。"""
+    pad = spread * 3
+    a = Image.new("L", (sprite.width + pad * 2, sprite.height + pad * 2), 0)
+    a.paste(sprite.getchannel("A"), (pad, pad))
+    a = a.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(spread))
+    arr = (np.asarray(a).astype(float) * strength).clip(0, 255).astype(np.uint8)
+    halo = Image.new("RGBA", a.size, INK + (0,))
+    halo.putalpha(Image.fromarray(arr, "L"))
+    canvas.alpha_composite(halo, (pos[0] - pad, pos[1] - pad))
+
+
 def fade_edges(img, left=0, right=0, top=0, bottom=0):
     """边缘化进墨里：用带噪声的渐隐，边是毛的，不是一刀切的直线。"""
     w, h = img.size
@@ -137,7 +160,7 @@ def cover():
     c = ink_ground(W, H)
     # 法相：脸和剑占右侧大半
     p = painting().crop((540, 20, 1260, 740)).resize((560, 560), Image.LANCZOS)
-    p = fade_edges(p, left=170, bottom=200, right=30)
+    p = recede(fade_edges(p, left=170, bottom=200, right=30), 0.72, 1.2)
     c.alpha_composite(p, (W - 560 + 40, -10))
     # 像素祥云和剑仙：左下，在法相前面
     cl = clouds()
@@ -145,7 +168,9 @@ def cover():
     c.alpha_composite(tint(unpremultiply(cl[0]), (190, 205, 206), 0.45), (-90, 455))
     # 剑仙站在右下、白袍前面，不挡脸和眼睛
     b = pixel(boss_sprite(), 2)
-    c.alpha_composite(b, (W - b.width - 22, H - b.height - 20))
+    pos = (W - b.width - 22, H - b.height - 20)
+    ink_halo(c, b, pos, 16, 1.6)
+    c.alpha_composite(b, pos)
     # 标题：竖排行楷，左上
     title_with_shadow(c, "青衣剑仙", ImageFont.truetype(FONT_TITLE, 92), (28, 18), vertical=True, gap=-6)
     c.alpha_composite(seal(46, "问剑"), (122, 300))
@@ -160,7 +185,7 @@ def banner():
     p = painting()
     scale = 760 / 941 * 1.05
     p = p.resize((int(p.width * scale), int(p.height * scale)), Image.LANCZOS)
-    p = fade_edges(p, left=380, right=160, bottom=220)
+    p = recede(fade_edges(p, left=380, right=160, bottom=220), 0.68, 1.5)
     c.alpha_composite(p, (W - p.width + 60, -40))
     cl = clouds()
     # 像素祥云按原图的像素大小，不放大（放大成大方块就不像一幅画了）
@@ -168,7 +193,9 @@ def banner():
         c.alpha_composite(tint(unpremultiply(cl[i]), (200, 214, 214), a), (x, y))
     # 剑仙站在标题和法相之间，脚下一朵云
     b = pixel(boss_sprite(), 3)
-    c.alpha_composite(b, (930, H - b.height - 36))
+    pos = (930, H - b.height - 36)
+    ink_halo(c, b, pos, 24, 1.6)
+    c.alpha_composite(b, pos)
     title_with_shadow(c, "青衣剑仙", ImageFont.truetype(FONT_TITLE, 170), (90, 110), vertical=False, gap=-14)
     c.alpha_composite(seal(84, "问剑"), (724, 130))
     d = ImageDraw.Draw(c)

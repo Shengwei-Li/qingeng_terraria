@@ -203,7 +203,7 @@ namespace QingyiJianxian.Common
 			("stroke", "Stroke", 0.9f), ("flight", "Swordflight", 0.9f), ("leaves", "Leaves", 0.9f),
 			("flurry", "Flurry", 0.5f), ("river", "River", 0.5f), ("ring", "Ring", 0.5f),
 			("hang", "Hang", 0.2f), ("brush", "Brush", 0.2f), ("unbound", "Unbound", 0.2f), ("drunk", "Drunk", 0.2f),
-			("p1", null, 0.9f), ("p2", null, 0.5f), ("p3", null, 0.2f), ("final", null, 0.06f),
+			("p1", null, 0.9f), ("p2", null, 0.5f), ("p3", null, 0.2f), ("final", null, 0.04f),
 		};
 
 		public override CommandType Type => CommandType.Chat;
