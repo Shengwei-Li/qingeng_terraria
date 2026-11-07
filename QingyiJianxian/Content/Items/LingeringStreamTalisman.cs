@@ -35,7 +35,7 @@ namespace QingyiJianxian.Content.Items
 			Item.autoReuse = false;
 			Item.noMelee = true;
 			Item.DamageType = DamageClass.Generic;
-			Item.damage = 260;
+			Item.damage = 420; // 剑仙留下的保命剑气：次数有限，一张就要能清场
 			Item.knockBack = 9f;
 			Item.shoot = ModContent.ProjectileType<TalismanRiver>();
 			Item.shootSpeed = 1f;
