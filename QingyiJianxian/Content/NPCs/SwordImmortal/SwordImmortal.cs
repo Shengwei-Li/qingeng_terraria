@@ -175,6 +175,9 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 
 		/// <summary>当前阶段（1-3），给飞剑等弹幕按阶段调速用。</summary>
 		public int Phase => phase;
+
+		/// <summary>当前招式名（演示录像 /qyshow 用来判断招式何时开始）。</summary>
+		public string StateName => CurrentState.ToString();
 		private bool Dashing => Striking && blinkTimer == 0 && Timer >= T.DashStart && Timer < T.DashEnd;
 		private (State State, int Strokes)[] Script => phase switch { 1 => Script1, 2 => Script2, _ => Script3 };
 

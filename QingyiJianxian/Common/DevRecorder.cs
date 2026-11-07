@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using QingyiJianxian.Content.NPCs.SwordImmortal;
 using Terraria;
 using Terraria.ModLoader;
@@ -12,71 +13,82 @@ using Terraria.ModLoader;
 namespace QingyiJianxian.Common
 {
 	/// <summary>
-	/// 开发用：把游戏画面逐帧直接喂给 ffmpeg，录成 60 帧 mp4（和 DevCapture 一起，发布前删掉）。
-	/// 录的时候关掉跳帧：电脑跟不上时游戏放慢，而不是丢帧，所以成片始终是满 60 帧、不卡。
-	/// 代价是录制时游戏可能慢一点，并且没有声音（配乐后期加）。
-	/// 每画一帧，按"这一帧游戏更新了几次"写入：没更新就不写，更新了两次就写两遍，成片的时间始终准确。
+	/// 开发用录像（和 DevCapture 一起，发布前删掉）。
+	/// 用 ffmpeg 的桌面复制（ddagrab，和 OBS 的显示器捕获同一个接口）直接从屏幕抓游戏窗口，显卡编码，
+	/// 不从游戏里回读画面——回读整屏每帧都卡，还会让显卡驱动重置。所以录制时游戏照常跑，几乎不掉帧。
+	/// 没有声音，配乐后期加。
 	/// </summary>
-	public class DevRecorder : ModSystem
+	public static class ScreenRecorder
 	{
 		private static Process ffmpeg;
-		private static Stream pipe;
-		private static Color[] pixels;
-		private static int width, height, framesLeft, updates, written, doubled;
-		private static string file;
-		private static Terraria.Enums.FrameSkipMode oldSkip;
-		private static bool oldHideUI;
+		private static readonly Stopwatch clock = new();
+
+		/// <summary>视频第一帧对应的 clock 时间（秒）；还没出第一帧时为负。</summary>
+		private static double firstFrame = -1;
 
 		public static bool Recording => ffmpeg != null;
+		public static bool HasFrames => firstFrame >= 0;
+		public static string File { get; private set; }
 
-		public override void Load()
-		{
-			if (!Main.dedServ)
-				Main.OnPostDraw += Frame;
-		}
+		/// <summary>现在是视频里的第几秒。</summary>
+		public static double VideoTime => clock.Elapsed.TotalSeconds - firstFrame;
 
-		public override void Unload()
-		{
-			Main.OnPostDraw -= Frame;
-			Stop();
-		}
-
-		public override void OnWorldUnload() => Stop();
-
-		public override void PostUpdateEverything()
+		public static string Start(string name)
 		{
 			if (Recording)
-				updates++;
-		}
-
-		public static string Start(int seconds, bool keepUI)
-		{
-			if (Recording)
-				return "已经在录了（/qyrec stop 结束）";
-			GraphicsDevice gd = Main.graphics.GraphicsDevice;
-			width = gd.PresentationParameters.BackBufferWidth & ~1; // H.264 要求偶数尺寸
-			height = gd.PresentationParameters.BackBufferHeight & ~1;
+				return "已经在录了";
 			string dir = Path.Combine(DevCapture.Folder, "videos");
 			Directory.CreateDirectory(dir);
-			file = Path.Combine(dir, $"rec_{DateTime.Now:MMdd_HHmmss}.mp4");
-			string args = $"-y -loglevel error -f rawvideo -pix_fmt rgba -s {width}x{height} -r 60 -i - "
-				+ $"-c:v libx264 -preset veryfast -crf 16 -pix_fmt yuv420p -movflags +faststart \"{file}\"";
-			ffmpeg = Launch(args);
+			File = Path.Combine(dir, $"{name}_{DateTime.Now:MMdd_HHmmss}.mkv"); // mkv：万一没正常收尾，文件也能用
+			firstFrame = -1;
+			clock.Restart();
+			// 先试只录游戏窗口 + N 卡编码；不行就录整个屏幕、换 CPU 编码
+			foreach (string region in new[] { Region(), "" })
+			{
+				foreach (string enc in new[] { "h264_nvenc -preset p4 -rc vbr -cq 19 -b:v 0", "libx264 -preset veryfast -crf 18" })
+				{
+					string args = $"-y -loglevel error -nostats -progress pipe:1 -f lavfi -i \"ddagrab=framerate=60:draw_mouse=0{region}\" "
+						+ $"-vf hwdownload,format=bgra -fps_mode cfr -r 60 -c:v {enc} -pix_fmt yuv420p \"{File}\"";
+					ffmpeg = Launch(args);
+					if (ffmpeg != null && !ffmpeg.WaitForExit(1500))
+						break;
+					ffmpeg = null;
+				}
+				if (ffmpeg != null)
+					break;
+			}
 			if (ffmpeg == null)
-				return "找不到 ffmpeg。安装：winget install Gyan.FFmpeg，然后重启 tModLoader";
-			pipe = ffmpeg.StandardInput.BaseStream;
-			pixels = new Color[width * height];
-			framesLeft = seconds * 60;
-			updates = written = doubled = 0;
-			oldSkip = Main.FrameSkipMode;
-			Main.FrameSkipMode = Terraria.Enums.FrameSkipMode.Off;
-			oldHideUI = Main.hideUI;
-			if (!keepUI)
-				Main.hideUI = true;
+				return "ffmpeg 启动失败（没装的话：winget install Gyan.FFmpeg，然后重启 tModLoader）";
+			Process p = ffmpeg;
+			p.OutputDataReceived += (_, e) =>
+			{
+				// -progress 每半秒报一次 frame=N；第一次 N>0 时反推出第一帧的时间
+				if (firstFrame < 0 && e.Data != null && e.Data.StartsWith("frame=")
+					&& int.TryParse(e.Data.AsSpan(6), out int n) && n > 0)
+					firstFrame = clock.Elapsed.TotalSeconds - n / 60.0;
+			};
+			p.BeginOutputReadLine();
 			return null;
 		}
 
-		private static Process Launch(string args)
+		/// <summary>只录游戏窗口那一块（窗口在主显示器上、尺寸对得上时），否则录整个主显示器。</summary>
+		private static string Region()
+		{
+			try
+			{
+				Rectangle r = Main.instance.Window.ClientBounds;
+				int w = Main.screenWidth & ~1, h = Main.screenHeight & ~1;
+				if (r.Width == Main.screenWidth && r.Height == Main.screenHeight && r.X >= 0 && r.Y >= 0)
+					return $":offset_x={r.X}:offset_y={r.Y}:video_size={w}x{h}";
+			}
+			catch (Exception)
+			{
+				// 拿不到窗口位置就录整个屏幕
+			}
+			return "";
+		}
+
+		internal static Process Launch(string args)
 		{
 			string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 			var candidates = new List<string> { "ffmpeg", Path.Combine(local, "Microsoft", "WinGet", "Links", "ffmpeg.exe") };
@@ -92,6 +104,7 @@ namespace QingyiJianxian.Common
 					{
 						UseShellExecute = false,
 						RedirectStandardInput = true,
+						RedirectStandardOutput = true,
 						CreateNoWindow = true,
 					});
 				}
@@ -103,91 +116,231 @@ namespace QingyiJianxian.Common
 			return null;
 		}
 
-		private static void Frame(GameTime _)
+		/// <summary>结束录制（让 ffmpeg 自己收尾，不卡游戏）；done 在文件写完后在后台线程调用。</summary>
+		public static void Stop(Action<string> done = null)
 		{
 			if (!Recording)
 				return;
-			int n = updates;
-			updates = 0;
-			if (n == 0)
-				return; // 画了但游戏没走：重复的画面，不写
-			try
-			{
-				Main.graphics.GraphicsDevice.GetBackBufferData(new Rectangle(0, 0, width, height), pixels, 0, pixels.Length);
-				ReadOnlySpan<byte> bytes = MemoryMarshal.AsBytes(pixels.AsSpan());
-				for (int i = 0; i < n && framesLeft > 0; i++, framesLeft--, written++)
-					pipe.Write(bytes);
-				if (n > 1)
-					doubled += n - 1;
-			}
-			catch (Exception e)
-			{
-				Main.NewText("[录像] 中断：" + e.Message, Color.OrangeRed);
-				framesLeft = 0;
-			}
-			if (framesLeft <= 0)
-				Stop();
-		}
-
-		public static void Stop()
-		{
-			if (!Recording)
-				return;
-			try
-			{
-				pipe.Close();
-				ffmpeg.WaitForExit(30000);
-			}
-			catch (Exception)
-			{
-				// ffmpeg 已经退出
-			}
-			ffmpeg.Dispose();
+			Process p = ffmpeg;
+			string file = File;
 			ffmpeg = null;
-			pipe = null;
-			pixels = null;
-			Main.FrameSkipMode = oldSkip;
-			Main.hideUI = oldHideUI;
-			if (!Main.gameMenu)
+			Task.Run(() =>
 			{
-				Main.NewText($"[录像] 已保存 {written / 60f:0.0} 秒：{file}", Color.LightSeaGreen);
-				if (doubled > 0)
-					Main.NewText($"[录像] 有 {doubled} 帧是重复补上的（电脑没跟上），关掉其他程序再录会更顺", Color.Orange);
-			}
+				try
+				{
+					p.StandardInput.Write("q");
+					p.StandardInput.Flush();
+					if (!p.WaitForExit(20000))
+						p.Kill();
+				}
+				catch (Exception)
+				{
+					// 已经退出
+				}
+				p.Dispose();
+				done?.Invoke(file);
+			});
 		}
 	}
 
-	/// <summary>/qyrec [秒数] [ui] | stop：开始录像；默认 15 秒、隐藏界面。</summary>
-	public class QyrecCommand : ModCommand
+	/// <summary>
+	/// /qyshow：一条命令录完剑仙所有招式。在头顶召出剑仙（玩家无敌、隐藏界面），按阶段顺序每招只出一次、录几秒，
+	/// 最后是最后一剑。录完自动切成一招一个短片，放在 videos/&lt;名字&gt;_clips/ 里。
+	/// 录制中输入 /qyshow stop 中止。
+	/// </summary>
+	public class BossShow : ModSystem
+	{
+		// (片名, 招式, 血量, 录几秒)：按阶段往后排，阶段只能往后走
+		private static readonly (string clip, string state, float life, float seconds)[] Steps =
+		{
+			("01_一剑横江", "Stroke", 0.9f, 3.5f),
+			("02_御剑术", "Swordflight", 0.9f, 4.5f),
+			("03_落叶成剑", "Leaves", 0.9f, 4.5f),
+			("04_转二阶段", "Transition", 0.5f, 3f),
+			("05_剑河", "River", 0.5f, 5f),
+			("06_瞬身连斩", "Flurry", 0.5f, 3.5f),
+			("07_剑阵", "Ring", 0.5f, 4.5f),
+			("08_展开领域", "Transition", 0.2f, 4f),
+			("09_万剑悬空", "Hang", 0.2f, 5f),
+			("10_一笔画地", "Brush", 0.2f, 4.5f),
+			("11_剑气纵横", "Unbound", 0.2f, 4.5f),
+			("12_醉剑", "Drunk", 0.2f, 4.5f),
+			("13_最后一剑", "Final", 0.04f, 12f),
+		};
+
+		private const float LeadIn = 0.8f;   // 每段从招式开始前 0.8 秒切
+		private const int WaitLimit = 60 * 25; // 25 秒等不到这一招就跳过
+
+		private static int step = -1;
+		private static int wait;
+		private static bool started;
+		private static double stepEnd;
+		private static bool oldHideUI;
+		private static readonly List<(string clip, double at, float seconds)> marks = new();
+
+		public static bool Running => step >= 0;
+
+		public static string Begin()
+		{
+			if (Running || ScreenRecorder.Recording)
+				return "已经在录了（/qyshow stop 中止）";
+			if (Main.netMode != Terraria.ID.NetmodeID.SinglePlayer)
+				return "只能在单人模式里录";
+			foreach (NPC n in Main.npc)
+				if (n.active && n.ModNPC is SwordImmortal or FinalSword)
+					n.active = false; // 从头开始，阶段要从一阶段走起
+			string error = ScreenRecorder.Start("show");
+			if (error != null)
+				return error;
+			marks.Clear();
+			oldHideUI = Main.hideUI;
+			Main.hideUI = true;
+			QybossCommand.God = true;
+			step = 0;
+			wait = 0;
+			started = false;
+			return null;
+		}
+
+		public static void Abort()
+		{
+			if (!Running)
+				return;
+			Finish(cut: false);
+			Main.NewText("[录像] 已中止");
+		}
+
+		public override void OnWorldUnload()
+		{
+			if (Running)
+				Finish(cut: false);
+		}
+
+		public override void PostUpdateEverything()
+		{
+			if (!Running || Main.gameMenu)
+				return;
+			// ffmpeg 刚启动的几秒还没有画面：等第一帧出来再召剑仙
+			if (!ScreenRecorder.HasFrames)
+				return;
+
+			Player player = Main.LocalPlayer;
+			int type = ModContent.NPCType<SwordImmortal>();
+			int i = NPC.FindFirstNPC(type);
+			var (clip, state, life, seconds) = Steps[step];
+
+			if (!started)
+			{
+				// 进入这一步：只出这一招，血量放到这一招的阶段
+				QybossCommand.DemoMove = state is "Transition" or "Final" ? null : state;
+				if (i < 0)
+					i = NPC.NewNPC(player.GetSource_Misc("qyshow"), (int)player.Center.X + player.direction * 360, (int)player.Center.Y - 160, type, Target: player.whoAmI);
+				NPC boss = Main.npc[i];
+				if (boss.life > boss.lifeMax * life)
+					boss.life = Math.Max(1, (int)(boss.lifeMax * life));
+				started = true;
+				wait = 0;
+				stepEnd = -1;
+				return;
+			}
+
+			if (i < 0)
+			{
+				Finish(cut: true);
+				return;
+			}
+			var immortal = (SwordImmortal)Main.npc[i].ModNPC;
+			if (stepEnd < 0)
+			{
+				if (immortal.StateName == state)
+				{
+					double at = ScreenRecorder.VideoTime;
+					marks.Add((clip, at, seconds));
+					stepEnd = at + seconds;
+				}
+				else if (++wait > WaitLimit)
+					Next();
+				return;
+			}
+			if (ScreenRecorder.VideoTime >= stepEnd)
+				Next();
+		}
+
+		private static void Next()
+		{
+			started = false;
+			if (++step >= Steps.Length)
+				Finish(cut: true);
+		}
+
+		private static void Finish(bool cut)
+		{
+			step = -1;
+			QybossCommand.DemoMove = null;
+			QybossCommand.God = false;
+			Main.hideUI = oldHideUI;
+			foreach (NPC n in Main.npc)
+				if (n.active && n.ModNPC is SwordImmortal or FinalSword)
+					n.active = false; // 不走结局，不给礼物，不记战胜
+			var clips = new List<(string clip, double at, float seconds)>(marks);
+			if (!cut)
+			{
+				ScreenRecorder.Stop();
+				return;
+			}
+			Main.NewText("[录像] 录完了，正在切片，请稍等……", Color.LightSeaGreen);
+			ScreenRecorder.Stop(file => Cut(file, clips));
+		}
+
+		/// <summary>后台把整段视频切成一招一个短片，再拼一个合集。</summary>
+		private static void Cut(string file, List<(string clip, double at, float seconds)> clips)
+		{
+			string dir = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "_clips");
+			Directory.CreateDirectory(dir);
+			var list = new StringBuilder();
+			foreach (var (clip, at, seconds) in clips)
+			{
+				string start = Math.Max(0, at - LeadIn).ToString("0.000", CultureInfo.InvariantCulture);
+				string len = (seconds + LeadIn).ToString("0.000", CultureInfo.InvariantCulture);
+				string output = Path.Combine(dir, clip + ".mp4");
+				Run($"-y -loglevel error -ss {start} -i \"{file}\" -t {len} -c:v libx264 -preset fast -crf 18 -pix_fmt yuv420p -an \"{output}\"");
+				list.AppendLine($"file '{output.Replace("\\", "/").Replace("'", "'\\''")}'");
+			}
+			string listFile = Path.Combine(dir, "list.txt");
+			System.IO.File.WriteAllText(listFile, list.ToString());
+			Run($"-y -loglevel error -f concat -safe 0 -i \"{listFile}\" -c copy \"{Path.Combine(dir, "00_合集.mp4")}\"");
+			System.IO.File.Delete(listFile);
+			Main.QueueMainThreadAction(() => Main.NewText($"[录像] 完成：{dir}", Color.LightSeaGreen));
+		}
+
+		private static void Run(string args)
+		{
+			using Process p = ScreenRecorder.Launch(args);
+			p?.WaitForExit(120000);
+		}
+	}
+
+	/// <summary>/qyshow：一条命令录完所有招式；/qyshow stop 中止。</summary>
+	public class QyshowCommand : ModCommand
 	{
 		public override CommandType Type => CommandType.Chat;
-		public override string Command => "qyrec";
-		public override string Usage => "/qyrec [秒数，默认 15] [ui = 保留界面] | /qyrec stop";
+		public override string Command => "qyshow";
+		public override string Usage => "/qyshow | /qyshow stop";
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
 			if (args.Length > 0 && args[0] == "stop")
 			{
-				DevRecorder.Stop();
+				BossShow.Abort();
 				return;
 			}
-			int seconds = 15;
-			bool keepUI = false;
-			foreach (string a in args)
-			{
-				if (a == "ui")
-					keepUI = true;
-				else if (int.TryParse(a, out int s))
-					seconds = Math.Clamp(s, 1, 300);
-			}
-			string error = DevRecorder.Start(seconds, keepUI);
-			if (error != null)
-				Main.NewText("[录像] " + error, Color.OrangeRed);
+			string error = BossShow.Begin();
+			Main.NewText(error == null ? "[录像] 开始：站着别动，大约两分钟，录完会提示" : "[录像] " + error, error == null ? Color.LightSeaGreen : Color.OrangeRed);
 		}
 	}
 
 	/// <summary>
-	/// /qyboss 招式 [god]：召出剑仙（已在场就用在场的），血量直接放到招式所在的阶段，之后只反复出这一招，中间留一次空窗。
+	/// /qyboss 招式 [god]：召出剑仙（已在场就用在场的），血量放到招式所在的阶段，之后只反复出这一招，中间留一次空窗。
 	/// /qyboss off：恢复正常出招。/qyboss god：切换玩家无敌。
 	/// </summary>
 	public class QybossCommand : ModCommand
