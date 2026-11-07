@@ -176,6 +176,9 @@ namespace QingyiJianxian.Common
 		private static bool started;
 		private static double stepEnd;
 		private static bool oldHideUI;
+		private static float oldZoom;
+		private const float ShowZoom = 1.5f; // 放大：剑仙和招式在 2K 画面里不会太小
+		private const float LiftScreens = 0.2f; // 镜头往上抬 0.2 屏：少拍地下的黑，多拍天上的招式
 		private static readonly List<(string clip, double at, float seconds)> marks = new();
 
 		public static bool Running => step >= 0;
@@ -195,6 +198,8 @@ namespace QingyiJianxian.Common
 			marks.Clear();
 			oldHideUI = Main.hideUI;
 			Main.hideUI = true;
+			oldZoom = Main.GameZoomTarget;
+			Main.GameZoomTarget = ShowZoom;
 			QybossCommand.God = true;
 			step = 0;
 			wait = 0;
@@ -208,6 +213,12 @@ namespace QingyiJianxian.Common
 				return;
 			Finish(cut: false);
 			Main.NewText("[录像] 已中止");
+		}
+
+		public override void ModifyScreenPosition()
+		{
+			if (Running)
+				Main.screenPosition.Y -= Main.screenHeight * LiftScreens / ShowZoom;
 		}
 
 		public override void OnWorldUnload()
@@ -279,6 +290,7 @@ namespace QingyiJianxian.Common
 			QybossCommand.DemoMove = null;
 			QybossCommand.God = false;
 			Main.hideUI = oldHideUI;
+			Main.GameZoomTarget = oldZoom;
 			foreach (NPC n in Main.npc)
 				if (n.active && n.ModNPC is SwordImmortal or FinalSword)
 					n.active = false; // 不走结局，不给礼物，不记战胜
