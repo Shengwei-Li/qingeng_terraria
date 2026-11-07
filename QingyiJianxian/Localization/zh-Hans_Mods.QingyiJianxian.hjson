@@ -1,34 +1,34 @@
 NPCs: {
 	SwordImmortal: {
 		DisplayName: 青衣剑仙
-		Pursue: 避战者，剑必至。
-		Defeat: 剑心未定，改日再来。
+		Pursue: 想走？剑会追上你。
+		Defeat: 改日再来。
 		PhaseTwo: 且看我剑意。
 		PhaseThree: 此间天地，唯剑而已。
 		FinalStroke: 最后一剑。
 		Unbound: 剑气，纵横。
 		Drink: 且饮一杯。
 		Reclaim: 拿我的剑来问我？
-		ReturnBlade: 剑还你。好生用。
+		ReturnBlade: 剑还你。
 		BladeAnswers: 以剑问剑，善。
 		Again: 又是你。
 		Received: 这一剑，你接住了。
-		Farewell: 青山不改，后会有期。
+		Farewell: 后会有期。
 	}
 
 	FinalSword.DisplayName: 最后一剑
 
 	WanderingImmortal: {
 		DisplayName: 青衣剑仙
-		Arrive: 一缕酒香随风飘来……
-		Disturb: 小友，莫扰我酒兴。
+		Arrive: 青衣剑仙在附近的云上饮酒。
+		Disturb: 莫扰我喝酒。
 		Oh: 哦？
 		Accept: 好，陪你走几招。
 		Dismiss1: 回去再练练。
 		Dismiss2: 不知进退。
 		Dismiss3: ……
 		Leave: 天色晚了。
-		Gone: 酒尽，人去。
+		Gone: 青衣剑仙走了。
 	}
 }
 
@@ -50,12 +50,12 @@ Items: {
 
 	SwordImmortalHat: {
 		DisplayName: 青衣剑仙的斗笠
-		Tooltip: 一圈淡青纱，叫人看不清你的脸
+		// Tooltip: ""
 	}
 
 	CloudweaveSilk: {
 		DisplayName: 云纹绡
-		Tooltip: 剑仙衣袂间的仙气，凝成一匹轻绡
+		Tooltip: 用来制作青衫套装
 	}
 
 	AzureWayfarerRobe: {
@@ -63,9 +63,9 @@ Items: {
 		Tooltip: 近战伤害 +8%，近战暴击率 +8%
 		SetBonus:
 			'''
-			身法：双击左右方向键，踏云冲刺，起步一瞬无敌
-			剑意：剑类命中叠一层剑意，最多 5 层，每层剑类伤害 +4%、攻速 +3%；三秒不出剑便散
-			再戴上青衫·发冠——罡气护体：受击后四柄小青剑绕身三秒，期间受到伤害 -25%，碰到的敌人会被斩伤；冷却 20 秒
+			身法：双击左或右方向键冲刺，冲刺开始时短暂无敌
+			剑意：剑类武器每次命中叠 1 层，最多 5 层；每层剑类伤害 +4%、攻速 +3%；3 秒不命中则清空
+			同时戴着青衫·发冠时获得罡气护体：受到伤害后 4 把小剑环绕 3 秒，期间受到伤害 -25%，碰到的敌人会受伤；冷却 20 秒
 			'''
 	}
 
@@ -74,7 +74,7 @@ Items: {
 		Tooltip:
 			'''
 			近战暴击率 +6%
-			与青衫剑袍、云履同穿时解锁罡气护体
+			与青衫·剑袍、青衫·云履一起穿戴时获得罡气护体
 			'''
 	}
 
@@ -88,7 +88,7 @@ Items: {
 		Tooltip:
 			'''
 			剑类武器伤害 +15%，暴击率 +10%
-			剑类暴击时留下墨痕，一秒后炸开，追加这一击一半的伤害
+			剑类武器暴击时在敌人身上留下墨痕，1 秒后爆开，造成这次伤害的一半
 			'''
 	}
 
@@ -96,23 +96,22 @@ Items: {
 		DisplayName: 青云药酒
 		Tooltip:
 			'''
-			剑仙的疗伤药酒，一口下去，伤去大半
-			饮后微醺五分钟
+			回复 200 生命值
+			获得微醺 5 分钟
 			'''
 	}
 
 	LitanyOfSwordflight: {
 		DisplayName: 御剑诀
-		Tooltip: 念一句口诀，脚下生云
+		Tooltip: 召唤可乘坐的云：无限飞行，不受摔落伤害
 	}
 
 	LingeringStreamTalisman: {
 		DisplayName: 清流剑符
 		Tooltip:
 			'''
-			朝点下的方向碾出一道剑河，一道最多斩十二个敌人
-			放出的一瞬无敌 1 秒（6 秒内只一次）
-			剑仙留在符纸上的一缕剑意，用一张少一张
+			朝鼠标方向放出一道剑河，最多命中 12 个敌人，对 Boss 伤害 -30%
+			放出时无敌 1 秒，每 6 秒最多触发一次
 			'''
 	}
 
@@ -120,19 +119,18 @@ Items: {
 		DisplayName: 清月剑
 		Tooltip:
 			'''
-			三段连斩：横扫、回撩各甩出一线剑气；前刺刺出长剑气，刺中的敌人片刻后再绽开一道斩痕
-			右键御剑：剑脱手飞去，连斩三剑再飞回手中
-			剑仙所赠。清辉一线，锋不染尘
+			三段连击：横扫、回撩各放出一道剑气；第三段前刺放出长剑气，命中的敌人 0.3 秒后再受到一次斩击
+			右键：剑飞到鼠标处连斩三次后飞回，冷却 2.5 秒；剑不在手中时无法攻击
 			'''
 	}
 
 	CloudbrewGourd: {
 		DisplayName: 一壶酒
-		RecipeCondition: 已与剑仙问剑
+		RecipeCondition: 击败过青衣剑仙
 		Tooltip:
 			'''
-			倒一杯敬天，剑仙乘云而来
-			（困难模式之前，请来的只是云上饮酒的他）
+			召唤青衣剑仙
+			困难模式之前只能召来饮酒的他，无法挑战
 			'''
 	}
 }
@@ -160,22 +158,22 @@ Projectiles: {
 Buffs: {
 	Tipsy: {
 		DisplayName: 微醺
-		Description: 伤害、防御、生命再生、移速都提升了
+		Description: 伤害 +10%，防御 +8，生命再生 +2/秒，移动速度 +10%
 	}
 
 	Disarmed: {
 		DisplayName: 剑被夺
-		Description: 清月剑在剑仙手中，这一战用不了
+		Description: 清月剑被剑仙夺走，本场战斗无法使用
 	}
 
 	SwordWill: {
 		DisplayName: 剑意
-		Description: 剑类伤害与攻速随层数提升
+		Description: 每层剑类伤害 +4%、攻速 +3%
 	}
 
 	WanderingCloudBuff: {
 		DisplayName: 乘云
-		Description: 踏云而行
+		Description: 正在乘云飞行
 	}
 }
 

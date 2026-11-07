@@ -1,34 +1,34 @@
 NPCs: {
 	SwordImmortal: {
 		DisplayName: The Azure-Clad Sword Immortal
-		Pursue: Flee if thou wilt; the sword shall follow.
-		Defeat: Thy sword-heart is yet unsettled. Come again another day.
-		PhaseTwo: Behold, then, the will of my sword.
-		PhaseThree: Within this heaven and earth, naught remaineth but the sword.
+		Pursue: Running? The sword will follow.
+		Defeat: Come back another day.
+		PhaseTwo: Now, my sword-will.
+		PhaseThree: In this world, there is only the sword.
 		FinalStroke: The final stroke.
 		Unbound: Sword-will, unbound.
-		Drink: One cup, then.
-		Reclaim: Thou wouldst question me with mine own blade?
-		ReturnBlade: Thy blade, returned. Wield it well.
-		BladeAnswers: Blade answered with blade. 'Tis well.
-		Again: Thou, again.
-		Received: This stroke — thou hast received it.
-		Farewell: The green hills change not. We shall meet again.
+		Drink: One cup first.
+		Reclaim: You'd test me with my own sword?
+		ReturnBlade: Your sword, back.
+		BladeAnswers: Blade for blade. Good.
+		Again: You again.
+		Received: You took that stroke.
+		Farewell: Until we meet again.
 	}
 
 	FinalSword.DisplayName: The Final Stroke
 
 	WanderingImmortal: {
 		DisplayName: The Azure-Clad Sword Immortal
-		Arrive: A waft of wine drifteth upon the wind...
-		Disturb: Little friend, trouble not my wine.
+		Arrive: The Azure-Clad Sword Immortal is drinking on a cloud nearby.
+		Disturb: Don't bother me while I drink.
 		Oh: Oh?
-		Accept: Very well. I shall humor thee a few strokes.
-		Dismiss1: Go thou and train awhile.
-		Dismiss2: Thou knowest not when to yield.
+		Accept: Fine. A few strokes, then.
+		Dismiss1: Go and train some more.
+		Dismiss2: You don't know when to stop.
 		Dismiss3: ...
-		Leave: The hour groweth late.
-		Gone: The wine is drunk; the wanderer is gone.
+		Leave: It's getting late.
+		Gone: The Azure-Clad Sword Immortal has left.
 	}
 }
 
@@ -50,12 +50,12 @@ Items: {
 
 	SwordImmortalHat: {
 		DisplayName: The Immortal's Bamboo Hat
-		Tooltip: A veil of pale gauze, that none may read thy face
+		Tooltip: ""
 	}
 
 	CloudweaveSilk: {
 		DisplayName: Cloudweave Silk
-		Tooltip: The immortal air of his sleeves, gathered into a length of gauze
+		Tooltip: Used to craft the Wayfarer set
 	}
 
 	AzureWayfarerRobe: {
@@ -63,9 +63,9 @@ Items: {
 		Tooltip: 8% increased melee damage and critical strike chance
 		SetBonus:
 			'''
-			Cloudstep: double-tap left or right to dash upon a cloud, untouchable for an instant as thou goest
-			Sword-Will: each sword strike gathereth will, up to 5; each granteth 4% sword damage and 3% sword speed, and it fadeth after three idle seconds
-			With the Jade Crown — Guarding Qi: when struck, four small blades circle thee for three seconds, lessening harm by 25% and cutting any foe they touch; twenty seconds to return
+			Cloudstep: double-tap left or right to dash, briefly invincible as the dash starts
+			Sword-Will: each sword hit adds a stack, up to 5; each stack gives 4% sword damage and 3% sword speed; stacks clear after 3 seconds without a hit
+			With the Wayfarer's Jade Crown, gain Guarding Qi: after taking damage, 4 small swords circle you for 3 seconds, reducing damage taken by 25% and hurting enemies they touch; 20 second cooldown
 			'''
 	}
 
@@ -74,7 +74,7 @@ Items: {
 		Tooltip:
 			'''
 			6% increased melee critical strike chance
-			Worn with the Wayfarer's Robe and Cloudstriders, awakeneth the Guarding Qi
+			Grants Guarding Qi when worn with the Wayfarer's Robe and Cloudstriders
 			'''
 	}
 
@@ -88,7 +88,7 @@ Items: {
 		Tooltip:
 			'''
 			15% increased damage and 10% increased critical strike chance with swords
-			Sword critical strikes leave an ink mark that bursts after a moment for half the blow's damage
+			Sword critical hits leave an ink mark that bursts after 1 second for half the hit's damage
 			'''
 	}
 
@@ -96,23 +96,22 @@ Items: {
 		DisplayName: Azure Cloud Draught
 		Tooltip:
 			'''
-			The Immortal's healing wine; one swallow and the greater part of thy wounds is gone
-			Leaveth thee pleasantly tipsy for five minutes
+			Restores 200 life
+			Grants Tipsy for 5 minutes
 			'''
 	}
 
 	LitanyOfSwordflight: {
 		DisplayName: Litany of Swordflight
-		Tooltip: Speak the words, and a cloud riseth beneath thy feet
+		Tooltip: Summons a rideable cloud with unlimited flight and no fall damage
 	}
 
 	LingeringStreamTalisman: {
 		DisplayName: Talisman of the Lingering Stream
 		Tooltip:
 			'''
-			Looseth a river of sword-qi that rolleth whither thou pointest; it sweepeth no more than twelve foes
-			In the instant of its loosing, thou art untouchable for a breath (once in six seconds)
-			A thread of the Immortal's sword-will, left upon paper. Each use spendeth one
+			Releases a river of sword-qi toward the cursor that hits up to 12 enemies; 30% less damage to bosses
+			Grants 1 second of invincibility on use, at most once every 6 seconds
 			'''
 	}
 
@@ -120,19 +119,18 @@ Items: {
 		DisplayName: Clearmoon
 		Tooltip:
 			'''
-			A three-stroke chain: a sweep and a rising cut each cast a line of sword-qi; a thrust casteth a long one, and where it pierceth, a scar of light bloometh a breath later
-			Right-click to loose the blade: it flieth forth, cutteth thrice, and returneth to thy hand
-			A gift of the Immortal. A single line of moonlight; its edge taketh no dust
+			Three-hit combo: a sweep and a rising cut each release a line of sword-qi; the third hit, a thrust, releases a long one, and enemies it hits are cut again 0.3 seconds later
+			Right-click to throw the sword at the cursor; it strikes three times and returns, with a 2.5 second cooldown; you can't attack while it is away
 			'''
 	}
 
 	CloudbrewGourd: {
 		DisplayName: Cloudbrew Gourd
-		RecipeCondition: After crossing blades with the Sword Immortal
+		RecipeCondition: After defeating the Azure-Clad Sword Immortal
 		Tooltip:
 			'''
-			Pour a cup unto heaven, and the Immortal cometh upon the clouds
-			(Before hardmode, he cometh only to drink)
+			Summons the Azure-Clad Sword Immortal
+			Before hardmode, he only comes to drink and can't be fought
 			'''
 	}
 }
@@ -159,23 +157,23 @@ Projectiles: {
 
 Buffs: {
 	Tipsy: {
-		DisplayName: A Pleasant Tipple
-		Description: Damage, defense, life regeneration and speed are increased
+		DisplayName: Tipsy
+		Description: 10% increased damage, +8 defense, +2 life per second, 10% increased movement speed
 	}
 
 	Disarmed: {
 		DisplayName: Disarmed
-		Description: Clearmoon resteth in the Immortal's hand; thou canst not wield it this fight
+		Description: The Sword Immortal took Clearmoon; you can't use it this fight
 	}
 
 	SwordWill: {
 		DisplayName: Sword-Will
-		Description: Sword damage and speed rise with each layer
+		Description: Each stack gives 4% sword damage and 3% sword speed
 	}
 
 	WanderingCloudBuff: {
-		DisplayName: Upon the Cloud
-		Description: Thou walkest upon a cloud
+		DisplayName: Riding the Cloud
+		Description: You are riding a cloud
 	}
 }
 
