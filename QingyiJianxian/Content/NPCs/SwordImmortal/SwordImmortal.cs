@@ -1259,6 +1259,13 @@ namespace QingyiJianxian.Content.NPCs.SwordImmortal
 
 		private void NextInScript()
 		{
+			// 演示（/qyboss 招式，发布前和 DevRecorder 一起删掉）：只反复出这一招，中间留一次空窗
+			if (Common.QybossCommand.DemoMove != null && Enum.TryParse(Common.QybossCommand.DemoMove, out State demo))
+			{
+				strokeCount = 2;
+				SwitchTo(CurrentState == State.Hover ? demo : State.Hover);
+				return;
+			}
 			var (state, strokes) = Script[(int)ScriptIndex % Script.Length];
 			ScriptIndex++;
 			strokeCount = Math.Max(strokes, 1);
