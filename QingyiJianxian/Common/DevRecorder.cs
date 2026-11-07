@@ -13,7 +13,23 @@ using Terraria.ModLoader;
 namespace QingyiJianxian.Common
 {
 	/// <summary>
-	/// 开发用录像（和 DevCapture 一起，发布前删掉）。
+	/// 开发工具开关：只有本机 ModSources 里有这个模组的源码时才加载录像、演示命令（DevCapture、DevRecorder 里的全部），
+	/// 从创意工坊下载的玩家那里这些都不存在，发布前不用删文件。
+	/// </summary>
+	public static class DevTools
+	{
+		private static bool? enabled;
+
+		public static bool Enabled => enabled ??= Directory.Exists(Path.Combine(Main.SavePath, "ModSources", "QingyiJianxian"));
+
+		/// <summary>演示录像时替代鼠标位置（武器朝这里出招）；平时为 null，就是鼠标。</summary>
+		public static Vector2? Aim;
+
+		public static Vector2 MouseWorld => Aim ?? Main.MouseWorld;
+	}
+
+	/// <summary>
+	/// 开发用录像（只在开发机上加载，见 DevTools）。
 	/// 用 ffmpeg 的桌面复制（ddagrab，和 OBS 的显示器捕获同一个接口）直接从屏幕抓游戏窗口，显卡编码，
 	/// 不从游戏里回读画面——回读整屏每帧都卡，还会让显卡驱动重置。所以录制时游戏照常跑，几乎不掉帧。
 	/// 没有声音，配乐后期加。
@@ -183,9 +199,32 @@ namespace QingyiJianxian.Common
 
 		public static bool Running => step >= 0;
 
+		public override bool IsLoadingEnabled(Mod mod) => DevTools.Enabled;
+
+		/// <summary>录像时放大、镜头上抬（剑仙和武器演示共用）。</summary>
+		public static void BeginFraming()
+		{
+			oldHideUI = Main.hideUI;
+			Main.hideUI = true;
+			oldZoom = Main.GameZoomTarget;
+			Main.GameZoomTarget = ShowZoom;
+			framing = true;
+			QybossCommand.God = true;
+		}
+
+		public static void EndFraming()
+		{
+			framing = false;
+			Main.hideUI = oldHideUI;
+			Main.GameZoomTarget = oldZoom;
+			QybossCommand.God = false;
+		}
+
+		private static bool framing;
+
 		public static string Begin()
 		{
-			if (Running || ScreenRecorder.Recording)
+			if (Running || WeaponShow.Running || ScreenRecorder.Recording)
 				return "已经在录了（/qyshow stop 中止）";
 			if (Main.netMode != Terraria.ID.NetmodeID.SinglePlayer)
 				return "只能在单人模式里录";
@@ -196,11 +235,7 @@ namespace QingyiJianxian.Common
 			if (error != null)
 				return error;
 			marks.Clear();
-			oldHideUI = Main.hideUI;
-			Main.hideUI = true;
-			oldZoom = Main.GameZoomTarget;
-			Main.GameZoomTarget = ShowZoom;
-			QybossCommand.God = true;
+			BeginFraming();
 			step = 0;
 			wait = 0;
 			started = false;
@@ -217,7 +252,7 @@ namespace QingyiJianxian.Common
 
 		public override void ModifyScreenPosition()
 		{
-			if (Running)
+			if (framing)
 				Main.screenPosition.Y -= Main.screenHeight * LiftScreens / ShowZoom;
 		}
 
@@ -288,9 +323,7 @@ namespace QingyiJianxian.Common
 		{
 			step = -1;
 			QybossCommand.DemoMove = null;
-			QybossCommand.God = false;
-			Main.hideUI = oldHideUI;
-			Main.GameZoomTarget = oldZoom;
+			EndFraming();
 			foreach (NPC n in Main.npc)
 				if (n.active && n.ModNPC is SwordImmortal or FinalSword)
 					n.active = false; // 不走结局，不给礼物，不记战胜
@@ -305,7 +338,7 @@ namespace QingyiJianxian.Common
 		}
 
 		/// <summary>后台把整段视频切成一招一个短片，再拼一个合集。</summary>
-		private static void Cut(string file, List<(string clip, double at, float seconds)> clips)
+		internal static void Cut(string file, List<(string clip, double at, float seconds)> clips)
 		{
 			string dir = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "_clips");
 			Directory.CreateDirectory(dir);
@@ -337,13 +370,23 @@ namespace QingyiJianxian.Common
 	{
 		public override CommandType Type => CommandType.Chat;
 		public override string Command => "qyshow";
-		public override string Usage => "/qyshow | /qyshow stop";
+		public override string Usage => "/qyshow | /qyshow weapons | /qyshow stop";
+
+		public override bool IsLoadingEnabled(Mod mod) => DevTools.Enabled;
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
 			if (args.Length > 0 && args[0] == "stop")
 			{
 				BossShow.Abort();
+				WeaponShow.Abort();
+				return;
+			}
+			bool weapons = args.Length > 0 && args[0] == "weapons";
+			if (weapons)
+			{
+				string err = WeaponShow.Begin();
+				Main.NewText(err == null ? "[录像] 开始录武器：站着别动，大约 20 秒，录完会提示" : "[录像] " + err, err == null ? Color.LightSeaGreen : Color.OrangeRed);
 				return;
 			}
 			string error = BossShow.Begin();
@@ -374,6 +417,8 @@ namespace QingyiJianxian.Common
 		public override CommandType Type => CommandType.Chat;
 		public override string Command => "qyboss";
 		public override string Usage => "/qyboss stroke|flight|leaves|flurry|river|ring|hang|brush|unbound|drunk|p1|p2|p3|final [god] | off | god";
+
+		public override bool IsLoadingEnabled(Mod mod) => DevTools.Enabled;
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{
@@ -414,6 +459,180 @@ namespace QingyiJianxian.Common
 
 	public class DemoGodPlayer : ModPlayer
 	{
+		public override bool IsLoadingEnabled(Mod mod) => DevTools.Enabled;
+
 		public override bool FreeDodge(Player.HurtInfo info) => QybossCommand.God;
+
+		// 武器演示：替玩家按住左键、不让方向键乱动
+		public override void SetControls()
+		{
+			if (!WeaponShow.Running || Player.whoAmI != Main.myPlayer)
+				return;
+			Player.controlLeft = Player.controlRight = Player.controlUp = Player.controlDown = false;
+			Player.controlJump = Player.controlUseTile = false;
+			Player.controlUseItem = WeaponShow.Hold > 0;
+		}
+
+		// 出招时面朝演示的方向，而不是真实鼠标
+		public override void PostItemCheck()
+		{
+			if (DevTools.Aim is Vector2 aim && Player.whoAmI == Main.myPlayer)
+				Player.ChangeDir(aim.X >= Player.Center.X ? 1 : -1);
+		}
+	}
+
+	/// <summary>
+	/// /qyshow weapons：一条命令录完清月剑三段连击、御剑、清流剑符（平射和斜上）。
+	/// 临时把手上那格换成要演示的武器、替玩家按键、朝前方出招，身前摆三只靶子；录完换回原来的物品，自动切片。
+	/// </summary>
+	public class WeaponShow : ModSystem
+	{
+		// (片名, 动作, 录几秒)
+		private static readonly (string clip, string action, float seconds)[] Steps =
+		{
+			("01_清月剑_三段连击", "combo", 3.5f),
+			("02_清月剑_御剑", "flight", 3.5f),
+			("03_清流剑符", "river", 3.5f),
+			("04_清流剑符_斜上", "riverup", 3.5f),
+		};
+
+		private const float LeadIn = 0.8f;
+
+		private static int step = -1;
+		private static bool started;
+		private static double stepStart;
+		private static int dir;
+		private static int slot;
+		private static Item original;
+		private static readonly List<int> targets = new();
+		private static readonly List<(string clip, double at, float seconds)> marks = new();
+
+		/// <summary>还要替玩家按住左键几帧。</summary>
+		public static int Hold;
+
+		public static bool Running => step >= 0;
+
+		public override bool IsLoadingEnabled(Mod mod) => DevTools.Enabled;
+
+		public static string Begin()
+		{
+			if (Running || BossShow.Running || ScreenRecorder.Recording)
+				return "已经在录了（/qyshow stop 中止）";
+			if (Main.netMode != Terraria.ID.NetmodeID.SinglePlayer)
+				return "只能在单人模式里录";
+			string error = ScreenRecorder.Start("weapons");
+			if (error != null)
+				return error;
+			Player p = Main.LocalPlayer;
+			dir = p.direction;
+			slot = p.selectedItem;
+			original = p.inventory[slot];
+			marks.Clear();
+			BossShow.BeginFraming();
+			step = 0;
+			started = false;
+			return null;
+		}
+
+		public static void Abort()
+		{
+			if (!Running)
+				return;
+			Finish(cut: false);
+			Main.NewText("[录像] 已中止");
+		}
+
+		public override void OnWorldUnload()
+		{
+			if (Running)
+				Finish(cut: false);
+		}
+
+		public override void PostUpdateEverything()
+		{
+			if (!Running || Main.gameMenu || !ScreenRecorder.HasFrames)
+				return;
+			if (Hold > 0)
+				Hold--;
+			Player p = Main.LocalPlayer;
+			var (clip, action, seconds) = Steps[step];
+			if (!started)
+			{
+				started = true;
+				ClearTargets();
+				// 三只靶子：身前 200、420、640 像素；剑符的靶子用原版血量，看得出斩不斩得死
+				for (int k = 0; k < 3; k++)
+				{
+					int n = NPC.NewNPC(p.GetSource_Misc("qyshow"), (int)(p.Center.X + dir * (200 + 220 * k)), (int)p.Bottom.Y - 4, Terraria.ID.NPCID.BlueSlime);
+					NPC npc = Main.npc[n];
+					if (!action.StartsWith("river"))
+						npc.lifeMax = npc.life = 30000;
+					npc.damage = 0;
+					targets.Add(n);
+				}
+				bool talisman = action.StartsWith("river");
+				int type = talisman ? ModContent.ItemType<Content.Items.LingeringStreamTalisman>() : ModContent.ItemType<Content.Items.Clearmoon>();
+				if (p.inventory[slot].type != type)
+					p.inventory[slot] = new Item(type, talisman ? 5 : 1);
+				p.selectedItem = slot;
+				Vector2 ahead = new(dir * 400f, action == "riverup" ? -230f : 0f);
+				DevTools.Aim = p.Center + ahead;
+				switch (action)
+				{
+					case "combo":
+						Hold = 56; // 三剑：16 + 16 + 21 帧
+						break;
+					case "flight":
+						// 和右键御剑一样：剑脱手飞到前方偏上，连斩三剑后飞回
+						Vector2 offset = new(dir * 380f, -60f);
+						Vector2 point = p.MountedCenter + offset;
+						int damage = (int)(p.GetWeaponDamage(p.inventory[slot]) * 0.75f);
+						Projectile.NewProjectile(p.GetSource_ItemUse(p.inventory[slot]), p.MountedCenter, offset.SafeNormalize(Vector2.UnitX) * 6f,
+							ModContent.ProjectileType<Content.Projectiles.ClearmoonFlight>(), damage, 5f, p.whoAmI, point.X, point.Y);
+						break;
+					default:
+						Hold = 2; // 剑符：点一下
+						break;
+				}
+				stepStart = ScreenRecorder.VideoTime;
+				marks.Add((clip, stepStart, seconds));
+				return;
+			}
+			if (ScreenRecorder.VideoTime >= stepStart + seconds)
+			{
+				started = false;
+				if (++step >= Steps.Length)
+					Finish(cut: true);
+			}
+		}
+
+		private static void ClearTargets()
+		{
+			foreach (int n in targets)
+				if (Main.npc[n].active && Main.npc[n].type == Terraria.ID.NPCID.BlueSlime)
+					Main.npc[n].active = false;
+			targets.Clear();
+		}
+
+		private static void Finish(bool cut)
+		{
+			step = -1;
+			Hold = 0;
+			DevTools.Aim = null;
+			ClearTargets();
+			Player p = Main.LocalPlayer;
+			if (original != null)
+				p.inventory[slot] = original;
+			original = null;
+			BossShow.EndFraming();
+			var clips = new List<(string clip, double at, float seconds)>(marks);
+			if (!cut)
+			{
+				ScreenRecorder.Stop();
+				return;
+			}
+			Main.NewText("[录像] 录完了，正在切片，请稍等……", Color.LightSeaGreen);
+			ScreenRecorder.Stop(file => BossShow.Cut(file, clips));
+		}
 	}
 }

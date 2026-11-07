@@ -31,6 +31,8 @@ namespace QingyiJianxian.Common
 
 		public static string Folder => Path.Combine(Main.SavePath, "QingyiCaptures");
 
+		public override bool IsLoadingEnabled(Mod mod) => DevTools.Enabled;
+
 		public static void Start(string captureName, int frames, int stride = 2, int wait = 0)
 		{
 			delay = wait;
@@ -114,6 +116,8 @@ namespace QingyiJianxian.Common
 		public override CommandType Type => CommandType.Chat;
 		public override string Command => "qyfx";
 		public override string Usage => "/qyfx qi|lance|swing|river|riverup|domain";
+
+		public override bool IsLoadingEnabled(Mod mod) => DevTools.Enabled;
 
 		public override void Action(CommandCaller caller, string input, string[] args)
 		{

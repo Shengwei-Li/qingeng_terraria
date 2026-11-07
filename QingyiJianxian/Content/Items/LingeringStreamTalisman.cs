@@ -46,7 +46,7 @@ namespace QingyiJianxian.Content.Items
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
 		{
 			// 朝点下的方向（任意角度）碾出去
-			Vector2 aim = (Main.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX * player.direction);
+			Vector2 aim = (Common.DevTools.MouseWorld - player.Center).SafeNormalize(Vector2.UnitX * player.direction);
 			int dir = aim.X >= 0f ? 1 : -1;
 			Projectile.NewProjectile(source, player.Center + aim * 12f, Vector2.Zero, type, damage, knockback, player.whoAmI, aim.ToRotation());
 			player.ChangeDir(dir);

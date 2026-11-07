@@ -71,7 +71,7 @@ namespace QingyiJianxian.Content.Items
 			var sp = player.GetModPlayer<SwordPlayer>();
 			if (player.altFunctionUse == 2)
 			{
-				Vector2 offset = Main.MouseWorld - player.MountedCenter;
+				Vector2 offset = DevTools.MouseWorld - player.MountedCenter;
 				if (offset.Length() > FlightRange)
 					offset = offset.SafeNormalize(Vector2.UnitX) * FlightRange;
 				Vector2 point = player.MountedCenter + offset;
@@ -79,7 +79,7 @@ namespace QingyiJianxian.Content.Items
 					ModContent.ProjectileType<ClearmoonFlight>(), (int)(damage * 0.75f), knockback, player.whoAmI, point.X, point.Y);
 				return false;
 			}
-			Vector2 aim = (Main.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX * player.direction);
+			Vector2 aim = (DevTools.MouseWorld - player.MountedCenter).SafeNormalize(Vector2.UnitX * player.direction);
 			int dir = aim.X >= 0 ? 1 : -1;
 			Projectile.NewProjectile(source, player.MountedCenter, aim, type, damage, knockback, player.whoAmI, sp.ComboStep, dir);
 			sp.ComboStep = (sp.ComboStep + 1) % 3;
