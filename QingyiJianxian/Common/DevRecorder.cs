@@ -237,11 +237,15 @@ namespace QingyiJianxian.Common
 			foreach (NPC n in Main.npc)
 				if (n.active && n.ModNPC is SwordImmortal or FinalSword)
 					n.active = false; // 从头开始，阶段要从一阶段走起
+			BeginFraming();
+			Main.drawingPlayerChat = false;
 			string error = ScreenRecorder.Start("show");
 			if (error != null)
+			{
+				EndFraming();
 				return error;
+			}
 			marks.Clear();
-			BeginFraming();
 			step = 0;
 			wait = 0;
 			started = false;
@@ -530,15 +534,20 @@ namespace QingyiJianxian.Common
 				return "已经在录了（/qyshow stop 中止）";
 			if (Main.netMode != Terraria.ID.NetmodeID.SinglePlayer)
 				return "只能在单人模式里录";
-			string error = ScreenRecorder.Start("weapons");
-			if (error != null)
-				return error;
 			Player p = Main.LocalPlayer;
 			dir = p.direction;
+			// 先藏界面、放大，再开始录：录像的第一帧就是干净的画面
+			BossShow.BeginFraming(2f, 0.08f, dir * 0.22f);
+			Main.drawingPlayerChat = false;
+			string error = ScreenRecorder.Start("weapons");
+			if (error != null)
+			{
+				BossShow.EndFraming();
+				return error;
+			}
 			slot = p.selectedItem;
 			original = p.inventory[slot];
 			marks.Clear();
-			BossShow.BeginFraming(2f, 0.08f, dir * 0.22f);
 			step = 0;
 			started = false;
 			settle = 90;
