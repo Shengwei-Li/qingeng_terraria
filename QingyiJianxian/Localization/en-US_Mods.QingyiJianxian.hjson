@@ -102,7 +102,7 @@ Items: {
 	}
 
 	LitanyOfSwordflight: {
-		DisplayName: Litany of Swordflight
+		DisplayName: Cloudrider's Litany
 		Tooltip: Summons a rideable cloud with unlimited flight and no fall damage
 	}
 
@@ -112,6 +112,15 @@ Items: {
 			'''
 			Releases a river of sword-qi toward the cursor that hits up to 12 enemies; 30% less damage to bosses
 			Grants 1 second of invincibility on use, at most once every 6 seconds
+			'''
+	}
+
+	Swordborne: {
+		DisplayName: Swordborne
+		Tooltip:
+			'''
+			Fly standing on a sword, with 2.5 seconds of flight time
+			Hold Down and Jump to hover; hovering uses flight time twice as fast
 			'''
 	}
 
@@ -136,7 +145,7 @@ Items: {
 }
 
 Projectiles: {
-	FlyingSword.DisplayName: Swordflight
+	FlyingSword.DisplayName: Flying Sword
 	InkBurst.DisplayName: Inkwake
 	FallingLeaf.DisplayName: Falling Leaf
 	RingSword.DisplayName: The Bladeward Ring

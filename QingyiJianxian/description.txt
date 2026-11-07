@@ -21,7 +21,8 @@
   · 清月剑：三段连击加剑气，右键飞剑
   · 剑穗（饰品）：剑类伤害与暴击提升，暴击留下墨痕
   · 青云药酒：回复 200 生命，附带增益
-  · 御剑诀：云坐骑
+  · 御剑（翅膀）：脚踏飞剑飞行，比猪鲨翅膀略弱，可以短暂悬停
+  · 腾云诀：云坐骑，无限飞行
   · 清流剑符：消耗品，朝鼠标方向放出剑河，任何职业可用
   · 云纹绡：制作青衫套装（剑袍、发冠、云履），套装效果为冲刺、剑意叠层、罡气护体
   · 宝藏袋、纪念杯、大师模式遗物、斗笠
@@ -53,7 +54,8 @@ He can't be killed. Take his final stroke and the fight ends; he leaves you gift
   · Clearmoon: three-hit combo with sword-qi, right-click to throw
   · Inkwake Tassel (accessory): sword damage and crit, crits leave ink marks
   · Azure Cloud Draught: restores 200 life and grants a buff
-  · Litany of Swordflight: cloud mount
+  · Swordborne (wings): fly standing on a sword; slightly weaker than Fishron Wings, can hover briefly
+  · Cloudrider's Litany: cloud mount with unlimited flight
   · Talisman of the Lingering Stream: consumable sword-qi river aimed at the cursor, usable by any class
   · Cloudweave Silk: crafts the Wayfarer set (robe, crown, boots) with a dash, sword-will stacks and a guarding effect
   · Treasure bag, trophy, Master Mode relic, bamboo hat

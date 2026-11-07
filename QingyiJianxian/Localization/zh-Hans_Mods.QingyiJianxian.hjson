@@ -102,7 +102,7 @@ Items: {
 	}
 
 	LitanyOfSwordflight: {
-		DisplayName: 御剑诀
+		DisplayName: 腾云诀
 		Tooltip: 召唤可乘坐的云：无限飞行，不受摔落伤害
 	}
 
@@ -112,6 +112,15 @@ Items: {
 			'''
 			朝鼠标方向放出一道剑河，最多命中 12 个敌人，对 Boss 伤害 -30%
 			放出时无敌 1 秒，每 6 秒最多触发一次
+			'''
+	}
+
+	Swordborne: {
+		DisplayName: 御剑
+		Tooltip:
+			'''
+			脚踏飞剑飞行，飞行时间 2.5 秒
+			按住下和跳跃可以悬停，悬停时飞行时间消耗加倍
 			'''
 	}
 
@@ -136,7 +145,7 @@ Items: {
 }
 
 Projectiles: {
-	FlyingSword.DisplayName: 御剑
+	FlyingSword.DisplayName: 飞剑
 	InkBurst.DisplayName: 墨痕
 	FallingLeaf.DisplayName: 落叶
 	RingSword.DisplayName: 剑阵

@@ -36,6 +36,9 @@ ITEMS = {
                        "sword immortal with black hair in a high topknot and a teal ribbon, a straight sword crossed behind, " + STYLE),
     "relic": (48, 48, "a master mode relic statue: a small golden jade figure of a chinese sword immortal in flowing robes standing on a "
                       "carved cloud, holding a straight sword, set on a dark stone pedestal, glowing gold, " + STYLE),
+    "swordborne": (32, 32, "a slender straight chinese jian sword flying horizontally, silver-white blade with a faint cyan glow, dark hilt "
+                           "with a crescent guard and a short teal tassel, a long streak of pale jade sword-light and a wisp of white cloud "
+                           "trailing behind it, " + STYLE),
     "cloud": (64, 24, "a small fluffy white auspicious chinese cloud (xiangyun) seen from the side, soft teal shading underneath, "
                       "swirl curls at the ends, flat bottom you could stand on, terraria mount sprite, pixel art, transparent background"),
 }
