@@ -27,7 +27,7 @@
   · 云纹绡：制作青衫套装（剑袍、发冠、云履），套装效果为冲刺、剑意叠层、罡气护体
   · 宝藏袋、纪念杯、大师模式遗物、斗笠
 
-当前为测试版（0.5.1），配乐暂用原版曲目。反馈：https://github.com/Shengwei-Li/qingeng_terraria
+当前为测试版（0.6.0），配乐暂用原版曲目。反馈：https://github.com/Shengwei-Li/qingeng_terraria
 
 ————————————————————————
 
@@ -60,4 +60,4 @@ He can't be killed. Take his final stroke and the fight ends; he leaves you gift
   · Cloudweave Silk: crafts the Wayfarer set (robe, crown, boots) with a dash, sword-will stacks and a guarding effect
   · Treasure bag, trophy, Master Mode relic, bamboo hat
 
-Beta (0.5.1); vanilla music is used for now. Feedback: https://github.com/Shengwei-Li/qingeng_terraria
+Beta (0.6.0); vanilla music is used for now. Feedback: https://github.com/Shengwei-Li/qingeng_terraria

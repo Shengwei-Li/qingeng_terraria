@@ -1,5 +1,5 @@
 displayName = 青衣剑仙 · The Azure-Clad Sword Immortal
 author = Shengwei-Li
-version = 0.5.1
+version = 0.6.0
 homepage = https://github.com/Shengwei-Li/qingeng_terraria
 buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, icon_workshop.png
